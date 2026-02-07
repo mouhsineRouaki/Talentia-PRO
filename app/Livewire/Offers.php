@@ -58,11 +58,8 @@ class Offers extends Component
     public function openApply(int $offerId): void
     {
         if (!auth()->check()) return;
-
-        // déjà postulé => rien faire
         if (in_array($offerId, $this->appliedOfferIds, true)) return;
 
-        // offre ouverte seulement
         $offer = JobOffer::query()
             ->with('recruteur.user')
             ->whereKey($offerId)
@@ -93,7 +90,6 @@ class Offers extends Component
 
         $offerId = $this->selectedOffer->id;
 
-        // sécurité si double clic
         if (in_array($offerId, $this->appliedOfferIds, true)) {
             $this->closeApply();
             return;
@@ -135,7 +131,7 @@ class Offers extends Component
             'offers' => $offers,
         ]);
     }
-    
+
     public function mcpForOffer(int $offerId): array{
         $meId = auth()->id();
 
@@ -144,6 +140,7 @@ class Offers extends Component
 
         return app(McpApiService::class)->score($offer, $rechercheur);
     }
+    
 
     public function getMcp(int $offerId): array{
         if (isset($this->mcp[$offerId])) return $this->mcp[$offerId];
