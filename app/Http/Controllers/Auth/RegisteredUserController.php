@@ -48,15 +48,19 @@ class RegisteredUserController extends Controller
             'image' => $request->image 
         ]);
             if($user->role === "RECRUTEUR"){
-                $user->assigneRole('recruteur');
+                $user->assignRole('recruteur');
             }else{
-                $user->assigneRole('rechercheur');
+                $user->assignRole('rechercheur');
             }
 
         event(new Registered($user));
 
         Auth::login($user);
 
-        return redirect(route('dashboard', absolute: false));
+        // hnaaaaaaaaaaa
+        if ($user->hasRole('recruteur')) {
+            return redirect()->route('dashboard.recruteur');
+        }
+        return redirect()->route('dashboard.rechercheur');
     }
 }
