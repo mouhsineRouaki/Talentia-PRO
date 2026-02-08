@@ -11,7 +11,7 @@ use App\Models\JobOffer;
 use App\Models\Application;
 use App\Models\Formation;
 use App\Models\Experience;
-use App\Models\Relationship;
+use App\Models\RelationShip;
 
 class DatabaseSeeder extends Seeder
 {
