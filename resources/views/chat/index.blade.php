@@ -25,57 +25,23 @@
             <!-- Conversation List -->
             <div class="flex-1 overflow-y-auto custom-scrollbar">
                 <!-- Active Conversation -->
-                <div class="group relative px-4 py-3 cursor-pointer bg-indigo-50 border-l-4 border-indigo-600 transition-all hover:bg-indigo-100">
-                    <div class="flex items-start space-x-3">
-                        <div class="relative">
-                            <img src="https://i.pravatar.cc/150?img=11" alt="Sarah" class="w-12 h-12 rounded-full object-cover ring-2 ring-white">
-                            <span class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></span>
-                        </div>
-                        <div class="flex-1 min-w-0">
-                            <div class="flex justify-between items-baseline mb-1">
-                                <h3 class="text-sm font-bold text-gray-900 truncate">Sarah Connor</h3>
-                                <span class="text-xs font-medium text-indigo-600">10:30</span>
+                 @foreach ($amis_user as $amis)
+                    <div class="group relative px-4 py-3 cursor-pointer bg-indigo-50 border-l-4 border-indigo-600 transition-all hover:bg-indigo-100">
+                        <div class="flex items-start space-x-3">
+                            <div class="relative">
+                                <img src="{{ $amis->image }}" alt="Sarah" class="w-12 h-12 rounded-full object-cover ring-2 ring-white">
+                                <span class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></span>
                             </div>
-                            <p class="text-sm text-gray-700 font-medium truncate">Merci pour votre proposition, je suis disponible...</p>
+                            <div class="flex-1 min-w-0">
+                                <div class="flex justify-between items-baseline mb-1">
+                                    <h3 class="text-sm font-bold text-gray-900 truncate">{{ $amis->nom }} {{  $amis->prenom }}</h3>
+                                    <span class="text-xs font-medium text-indigo-600"></span>
+                                </div>
+                                <p class="text-sm text-gray-700 font-medium truncate"></p>
+                            </div>
                         </div>
                     </div>
-                </div>
-
-                <!-- Unread Conversation -->
-                <div class="group relative px-4 py-3 cursor-pointer hover:bg-gray-50 transition-all border-l-4 border-transparent">
-                    <div class="flex items-start space-x-3">
-                         <div class="relative">
-                            <img src="https://i.pravatar.cc/150?img=33" alt="John" class="w-12 h-12 rounded-full object-cover grayscale transition group-hover:grayscale-0">
-                             <span class="absolute bottom-0 right-0 w-3 h-3 bg-gray-400 border-2 border-white rounded-full"></span>
-                        </div>
-                        <div class="flex-1 min-w-0">
-                            <div class="flex justify-between items-baseline mb-1">
-                                <h3 class="text-sm font-semibold text-gray-800 group-hover:text-indigo-600 transition">John Doe</h3>
-                                <span class="text-xs text-gray-500">Hier</span>
-                            </div>
-                            <p class="text-sm text-gray-500 truncate group-hover:text-gray-700 transition">Bonjour, avez-vous reçu mon CV ?</p>
-                        </div>
-                         <div class="absolute right-4 top-1/2 transform -translate-y-1/2 opacity-0 group-hover:opacity-100 transition">
-                            <!-- Optional: pinned or unread indicator -->
-                        </div>
-                    </div>
-                </div>
-
-                 <!-- Regular Conversation -->
-                 <div class="group relative px-4 py-3 cursor-pointer hover:bg-gray-50 transition-all border-l-4 border-transparent">
-                    <div class="flex items-start space-x-3">
-                         <div class="relative">
-                            <img src="https://i.pravatar.cc/150?img=5" alt="Alice" class="w-12 h-12 rounded-full object-cover">
-                        </div>
-                        <div class="flex-1 min-w-0">
-                            <div class="flex justify-between items-baseline mb-1">
-                                <h3 class="text-sm font-semibold text-gray-800 group-hover:text-indigo-600 transition">Alice Smith</h3>
-                                <span class="text-xs text-gray-500">Lundi</span>
-                            </div>
-                            <p class="text-sm text-gray-500 truncate group-hover:text-gray-700 transition">Parfait, à tout à l'heure !</p>
-                        </div>
-                    </div>
-                </div>
+                @endforeach
             </div>
         </div>
 
