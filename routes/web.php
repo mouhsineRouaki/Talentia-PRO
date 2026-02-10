@@ -46,7 +46,14 @@ Route::middleware('auth')->group(function () {
     Route::get('/users/{id}', [UserController::class , 'detailsPage'])->name('users.show');
     Route::view('/relationships', 'relationships.index')->name('relationships.index');
     Route::view('/notifications', 'notifications.index')->name('notifications.index');
-    Route::get('/chat', [ChatController::class , 'getFriend'])->name('chat.index');
+
+    Route::get('/conversations', [ChatController::class , 'index'])->name('chat.index');
+    Route::get('/conversations/{id}', [ChatController::class , 'show'])->name('chat.show');
+    Route::post('/conversations/start', [ChatController::class , 'startConvertation'])->name('conversations.start');
+    Route::post('/conversations/send', [ChatController::class , 'sendMessage'])->name('chat.send');
+    Route::get('/conversations/{id}/messages', [ChatController::class, 'fetchMessage'])->name('chat.fetch');
+
+
     Route::get('recruteur/offers', [JobOfferController::class, 'index'])->name('offers.index');
     Route::post('/offers', [JobOfferController::class, 'store'])->name('offers.store');
     Route::post('/offers/{offer}/close', [JobOfferController::class, 'close'])->name('offers.close');
