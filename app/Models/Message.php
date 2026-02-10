@@ -6,10 +6,12 @@ use Illuminate\Database\Eloquent\Model;
 
 class Message extends Model
 {
+    protected $table = 'message';
     protected $fillable = [
         'sender_id',
         'conversation_id',
         'text',
+        'attach',
     ];
 
     protected $casts = [
