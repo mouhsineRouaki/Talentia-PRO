@@ -72,5 +72,8 @@
                 S'inscrire
             </x-primary-button>
         </div>
+
+            <a href="{{ route('google.redirect') }}" class="btn btn-primary"> Login with Google </a>
+            <a href="{{ route('auth.github') }}" class="btn btn-primary"> Login with GitHub </a>
     </form>
 </x-guest-layout>
