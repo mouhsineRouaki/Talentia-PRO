@@ -23,7 +23,6 @@ Route::middleware(['auth', 'role:rechercheur'])->group(function(){
 Route::middleware(['auth', 'permission:offer.create'])->group(function(){
 
 });
-Route::get('/offers', [JobOfferController::class, 'index'])->name('offers.index');
 
 
 Route::middleware('auth')->group(function () {
@@ -46,6 +45,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/users/{id}', [UserController::class , 'detailsPage'])->name('users.show');
     Route::view('/relationships', 'relationships.index')->name('relationships.index');
     Route::view('/notifications', 'notifications.index')->name('notifications.index');
+    Route::view('/chat', 'chat.index')->name('chat.index');
     Route::get('recruteur/offers', [JobOfferController::class, 'index'])->name('offers.index');
     Route::post('/offers', [JobOfferController::class, 'store'])->name('offers.store');
     Route::post('/offers/{offer}/close', [JobOfferController::class, 'close'])->name('offers.close');
@@ -55,7 +55,7 @@ Route::middleware('auth')->group(function () {
         ->name('applications.accept');
     Route::get('/offers/{offer}/accepted', [JobOfferController::class, 'acceptedApplicants'])
     ->name('offers.accepted');
-    Route::get('/offers', function () {return view('offers.rechercheur.index');})->name('offers.rechercheurs.index');
+    Route::get('/offers', function () { return view('offers.rechercheur.index');})->name('offers.rechercheurs.index');
     Route::get('/rechercheur/profile', [RechercheurProfileController::class, 'edit'])
         ->name('rechercheur.profile.edit');
 
