@@ -39,13 +39,13 @@ class RegisteredUserController extends Controller
             'role' => ['required', 'string', 'max:255'],
             'image' => ['required', 'string', 'max:300'],
         ]);
-            $user = User::create([
+        $user = User::create([
             'nom' => $request->nom,
             'prenom' => $request->prenom,
             'email' => $request->email,
-            'password' => Hash::make($request->password),
             'role' => $request->role , 
-            'image' => $request->image 
+            'image' => $request->image,
+            'password' => Hash::make($request->password),
         ]);
             if($user->role === "RECRUTEUR"){
                 $user->assigneRole('recruteur');
@@ -57,6 +57,9 @@ class RegisteredUserController extends Controller
 
         Auth::login($user);
 
-        return redirect(route('dashboard', absolute: false));
+        if ($user->hasRole('recruteur')) {
+            return redirect()->route('dashboard.recruteur');
+        }
+            return redirect()->route('dashboard.rechercheur');
     }
 }

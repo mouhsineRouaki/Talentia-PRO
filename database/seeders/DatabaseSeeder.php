@@ -11,7 +11,7 @@ use App\Models\JobOffer;
 use App\Models\Application;
 use App\Models\Formation;
 use App\Models\Experience;
-use App\Models\Relationship;
+use App\Models\RelationShip;
 
 class DatabaseSeeder extends Seeder
 {
@@ -63,7 +63,7 @@ class DatabaseSeeder extends Seeder
         $users->each(function ($user) use ($users) {
             $friend = $users->where('id', '!=', $user->id)->random();
 
-            Relationship::firstOrCreate([
+            RelationShip::firstOrCreate([
                 'sender_id' => $user->id,
                 'reciever_id' => $friend->id,
             ]);
