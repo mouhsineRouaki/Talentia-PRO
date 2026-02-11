@@ -28,20 +28,47 @@
                         $friend = ($conv->user_one_id == auth()->id()) ? $conv->userTow : $conv->userOne;
                         $isSelected = isset($conversation) && $conversation->id === $conv->id;
                     @endphp
-                    <a href="{{ route('chat.show', $conv->id) }}" class="block group relative px-4 py-3 cursor-pointer transition-all {{ $isSelected ? 'bg-indigo-50 border-l-4 border-indigo-600' : 'bg-white hover:bg-gray-50 border-l-4 border-transparent' }}">
-                        <div class="flex items-start space-x-3">
+                    <a href="{{ route('chat.show', $conv->id) }}" data-con-id="{{ $conv->id }}" class="block group relative px-4 py-4 cursor-pointer transition-all duration-200 hover:bg-indigo-50/50 {{ $isSelected ? 'bg-indigo-50 border-r-4 border-indigo-600' : 'bg-white border-r-4 border-transparent' }}">
+                        <div class="flex items-start space-x-4">
                             <div class="relative">
-                                <img src="{{ $friend->image ?? 'https://i.pravatar.cc/150?u='.$friend->id }}" alt="{{ $friend->nom }}" class="w-12 h-12 rounded-full object-cover ring-2 {{ $isSelected ? 'ring-indigo-200' : 'ring-gray-100' }}">
+                                <img src="{{ $friend->image ?? 'https://i.pravatar.cc/150?u='.$friend->id }}" alt="{{ $friend->nom }}" class="w-12 h-12 rounded-full object-cover ring-2 ring-offset-2 {{ $isSelected ? 'ring-indigo-500' : 'ring-gray-100 group-hover:ring-indigo-200' }} transition-all">
+                                @if($conv->unread_count > 0)
+                                    <span class="absolute -top-1 -right-1 flex h-4 w-4">
+                                      <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                                      <span class="relative inline-flex rounded-full h-4 w-4 bg-red-500 border-2 border-white"></span>
+                                    </span>
+                                @endif
                             </div>
-                            <div class="flex-1 min-w-0">
-                                <div class="flex justify-between items-baseline mb-1">
-                                    <h3 class="text-sm font-bold {{ $isSelected ? 'text-indigo-900' : 'text-gray-900' }} truncate">
+                            <div class="flex-1 min-w-0 py-1">
+                                <div class="flex justify-between items-center mb-1">
+                                    <h3 class="text-sm font-bold {{ $isSelected ? 'text-indigo-900' : 'text-gray-900' }} truncate group-hover:text-indigo-700 transition-colors">
                                         {{ $friend->nom }} {{  $friend->prenom }}
                                     </h3>
+                                    @if($conv->lastMessage)
+                                        <span class="text-[10px] text-gray-400">{{ $conv->lastMessage->created_at->format('H:i') }}</span>
+                                    @endif
                                 </div>
-                                <p class="text-sm {{ $isSelected ? 'text-indigo-600' : 'text-gray-500' }} font-medium truncate">
-                                    Cliquez pour discuter
-                                </p>
+                                <div class="text-sm {{ $isSelected ? 'text-indigo-600' : 'text-gray-500' }} font-medium truncate">
+                                    <div class="flex justify-between items-center w-full">
+                                        <span class="truncate block opacity-90">
+                                            @if($conv->lastMessage)
+                                                @if($conv->lastMessage->sender_id == auth()->id())
+                                                    <span class="text-xs text-indigo-400 mr-1">Vous:</span>
+                                                @endif
+                                                @if($conv->lastMessage->text)
+                                                    {{ Str::limit($conv->lastMessage->text, 25) }}
+                                                @elseif(!empty($conv->lastMessage->attach))
+                                                    <span class="flex items-center text-xs"><svg class="w-3 h-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/></svg> Pièce jointe</span>
+                                                @endif
+                                            @else
+                                                <span class="text-indigo-400 italic">Démarrer une discussion</span>
+                                            @endif
+                                        </span>
+                                        @if($conv->unread_count > 0)
+                                            <span class="unread-badge bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-lg shadow-red-500/30 ml-2 flex-shrink-0 animate-pulse">{{ $conv->unread_count }}</span>
+                                        @endif
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </a>
@@ -126,7 +153,7 @@
                                             </div>
                                         @endif
                                         @if($message->text)
-                                            <div class="bg-indigo-600 px-4 py-3 rounded-2xl rounded-br-none shadow-md text-white text-sm leading-relaxed">
+                                            <div class="bg-gradient-to-br from-indigo-600 to-indigo-700 px-5 py-3 rounded-2xl rounded-br-none shadow-lg shadow-indigo-500/20 text-white text-sm leading-relaxed tracking-wide">
                                                 {{ $message->text }}
                                             </div>
                                         @endif
@@ -165,7 +192,7 @@
                                             </div>
                                         @endif
                                         @if($message->text)
-                                            <div class="bg-white px-4 py-3 rounded-2xl rounded-bl-none shadow-sm text-gray-800 text-sm leading-relaxed border border-gray-100">
+                                            <div class="bg-white px-5 py-3 rounded-2xl rounded-bl-none shadow-sm text-gray-800 text-sm leading-relaxed border border-gray-100 hover:shadow-md transition-shadow">
                                                 {{ $message->text }}
                                             </div>
                                         @endif
@@ -178,7 +205,7 @@
                 </div>
             
                 <div class="p-4 bg-white border-t border-gray-200">
-                    <form id="chat-form" action="{{ route('chat.send') }}" method="POST" enctype="multipart/form-data" class="flex items-end space-x-4 bg-gray-50 p-2 rounded-3xl border border-gray-200 focus-within:ring-2 focus-within:ring-indigo-100 focus-within:border-indigo-300 transition-all shadow-sm">
+                    <form id="chat-form" action="{{ route('chat.send') }}" method="POST" enctype="multipart/form-data" class="bg-white p-2 rounded-3xl border border-gray-100 shadow-xl flex items-end space-x-2 relative z-20">
                         @csrf
                         @if(isset($selected_user))
                             <input type="hidden" name="receiver_id" value="{{ $selected_user->id }}">
@@ -188,7 +215,7 @@
                         @endif
 
                     <input type="file" name="attachment" id="attachment" class="hidden" style="display: none;">
-                    <button type="button" onclick="document.getElementById('attachment').click()" class="p-2 text-gray-400 hover:text-indigo-600 transition self-center">
+                    <button type="button" onclick="document.getElementById('attachment').click()" class="p-3 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-full transition-all duration-200">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
                         </svg>
@@ -196,24 +223,24 @@
 
                     <div class="flex-1 relative">
                         <!-- File Preview Container -->
-                        <div id="file-preview-container" class="hidden absolute bottom-full left-0 mb-2 w-full">
-                            <div class="bg-indigo-50 rounded-2xl p-3 border border-indigo-100 shadow-lg inline-flex items-center space-x-3 animate-fade-in-up">
-                                <div id="preview-icon-wrapper" class="relative">
-                                    <img id="image-preview" src="" class="hidden w-16 h-16 object-cover rounded-xl border border-indigo-200">
-                                    <div id="file-icon" class="hidden w-16 h-16 bg-white rounded-xl flex items-center justify-center border border-indigo-200 text-indigo-500">
+                        <div id="file-preview-container" class="hidden absolute bottom-full left-0 mb-4 w-full">
+                            <div class="bg-white rounded-2xl p-3 border border-indigo-100 shadow-2xl inline-flex items-center space-x-4 animate-fade-in-up">
+                                <div id="preview-icon-wrapper" class="relative group">
+                                    <img id="image-preview" src="" class="hidden w-16 h-16 object-cover rounded-xl border-2 border-indigo-100 shadow-sm">
+                                    <div id="file-icon" class="hidden w-16 h-16 bg-indigo-50 rounded-xl flex items-center justify-center border-2 border-indigo-100 text-indigo-500">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                                         </svg>
                                     </div>
-                                    <button type="button" id="remove-file" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 shadow-md hover:bg-red-600 transition transform hover:scale-110">
+                                    <button type="button" id="remove-file" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 shadow-md hover:bg-red-600 transition transform hover:scale-110 opacity-0 group-hover:opacity-100">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
                                             <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
                                         </svg>
                                     </button>
                                 </div>
                                 <div class="flex flex-col max-w-xs">
-                                    <span id="file-name" class="text-sm font-semibold text-gray-700 truncate block"></span>
-                                    <span id="file-size" class="text-xs text-gray-500"></span>
+                                    <span id="file-name" class="text-sm font-bold text-gray-800 truncate block"></span>
+                                    <span id="file-size" class="text-xs text-indigo-500 font-medium"></span>
                                 </div>
                             </div>
                         </div>
@@ -222,20 +249,14 @@
                             name="message"
                             id="message-input"
                             placeholder="Écrivez votre message..." 
-                            class="w-full bg-transparent border-none focus:ring-0 resize-none py-3 text-gray-700 placeholder-gray-400 max-h-32"
+                            class="w-full bg-transparent border-none focus:ring-0 resize-none py-3 px-2 text-gray-800 placeholder-gray-400 max-h-32 text-sm font-medium"
                             rows="1"
                         ></textarea>
                     </div>
                     
-                    <div class="flex items-center space-x-2 self-center pb-2">
-                        <button type="button" class="p-2 text-gray-400 hover:text-yellow-500 transition">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                        </button>
-                        
-                        <button type="submit" class="bg-indigo-600 text-white rounded-full p-3 shadow-lg hover:bg-indigo-700 hover:shadow-xl transition transform hover:-translate-y-0.5">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <div class="flex items-center space-x-2 pb-1">
+                        <button type="submit" class="bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-full p-3 shadow-lg shadow-indigo-500/30 hover:shadow-indigo-500/50 hover:scale-105 transition-all duration-200">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 transform rotate-90" viewBox="0 0 20 20" fill="currentColor">
                                 <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z" />
                             </svg>
                         </button>
@@ -274,6 +295,20 @@
 
         if (messagesBox) {
             messagesBox.scrollTop = messagesBox.scrollHeight;
+        }
+
+        function isVue(conversationId){ 
+            fetch(`/conversations/${conversationId}/isVue`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+              }
+            }); 
+        }
+
+        if (conversationId) {
+            isVue(conversationId);
         }
 
         function addMessage(message) {
@@ -322,7 +357,7 @@
                 <div class="flex items-end justify-end space-x-2">
                     <div class="flex flex-col space-y-1 max-w-lg items-end">
                         ${attachmentHtml}
-                        ${message.text ? `<div class="bg-indigo-600 px-4 py-3 rounded-2xl rounded-br-none text-white text-sm shadow-md leading-relaxed">${message.text}</div>` : ''}
+                        ${message.text ? `<div class="bg-gradient-to-br from-indigo-600 to-indigo-700 px-5 py-3 rounded-2xl rounded-br-none shadow-lg shadow-indigo-500/20 text-white text-sm leading-relaxed tracking-wide">${message.text}</div>` : ''}
                         <div class="flex items-center space-x-1 pr-1 justify-end">
                             <span class="text-xs text-gray-400">Maintenant</span>
                         </div>
@@ -362,10 +397,10 @@
 
                 html = `
                 <div class="flex items-end space-x-2">
-                    <img src="${img}" class="w-8 h-8 rounded-full object-cover">
+                    <img src="${img}" class="w-8 h-8 rounded-full object-cover shadow-sm mb-1">
                     <div class="flex flex-col space-y-1 max-w-lg">
                         ${attachmentHtml}
-                        ${message.text ? `<div class="bg-white px-4 py-3 rounded-2xl rounded-bl-none shadow-sm text-gray-800 text-sm leading-relaxed border border-gray-100">${message.text}</div>` : ''}
+                        ${message.text ? `<div class="bg-white px-5 py-3 rounded-2xl rounded-bl-none shadow-sm text-gray-800 text-sm leading-relaxed border border-gray-100 hover:shadow-md transition-shadow">${message.text}</div>` : ''}
                         <span class="text-xs text-gray-400 pl-2">Maintenant</span>
                     </div>
                 </div>
@@ -416,16 +451,49 @@
             });
         }
 
-        if (conversationId) {
-
-            Echo.private("conversation." + conversationId)
+        @foreach($conversations as $conv)
+            Echo.private("conversation.{{ $conv->id }}")
                 .listen(".message.sent", function (e) {
+                    
                     if (e.message.sender_id != userId) {
-                        addMessage(e.message);
+                        
+                        if (conversationId && conversationId == {{ $conv->id }}) {
+                            addMessage(e.message); 
+                            isVue(conversationId); 
+                        } 
+                        else {
+                            let convItem = document.querySelector(`a[data-con-id="{{ $conv->id }}"]`);
+                            
+                            if (convItem) {
+                                let previewText = e.message.text ? e.message.text.substring(0, 20) + (e.message.text.length > 20 ? '...' : '') : '📎 Pièce jointe';
+                                
+                                let time = new Date(e.message.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                                
+                                let previewSpan = convItem.querySelector('.truncate.block.opacity-90');
+                                if(previewSpan) {
+                                    previewSpan.innerHTML = previewText;
+                                }
+                                let timeSpan = convItem.querySelector('.flex.justify-between.items-center.mb-1 span.text-\\[10px\\]');
+                                if (timeSpan) {
+                                    timeSpan.textContent = time;
+                                }
+                                let badge = convItem.querySelector('.unread-badge');
+                                
+                                if (badge) {
+                                    let count = parseInt(badge.textContent) || 0;
+                                    badge.textContent = count + 1;
+                                } else {
+                                    let badgeParent = convItem.querySelector('.flex.justify-between.items-center.w-full');
+                                    
+                                    if(badgeParent) {
+                                        badgeParent.insertAdjacentHTML('beforeend', `<span class="unread-badge bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-lg shadow-red-500/30 ml-2 flex-shrink-0 animate-pulse">1</span>`);
+                                    }
+                                }
+                            }
+                        }
                     }
-
                 });
-        }
+        @endforeach
 
         const attachmentInput = document.getElementById('attachment');
         const previewContainer = document.getElementById('file-preview-container');
@@ -435,33 +503,35 @@
         const fileSize = document.getElementById('file-size');
         const removeFileBtn = document.getElementById('remove-file');
 
-        attachmentInput.addEventListener('change', function() {
-            const file = this.files[0];
-            if (file) {
-                
-                previewContainer.classList.remove('hidden');
-                fileName.textContent = file.name;
-                fileSize.textContent = formatBytes(file.size);
+        if (attachmentInput) {
+            attachmentInput.addEventListener('change', function() {
+                const file = this.files[0];
+                if (file) {
+                    
+                    previewContainer.classList.remove('hidden');
+                    fileName.textContent = file.name;
+                    fileSize.textContent = formatBytes(file.size);
 
-                if (file.type.startsWith('image/')) {
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        imagePreview.src = e.target.result;
-                        imagePreview.classList.remove('hidden');
-                        fileIcon.classList.add('hidden');
+                    if (file.type.startsWith('image/')) {
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            imagePreview.src = e.target.result;
+                            imagePreview.classList.remove('hidden');
+                            fileIcon.classList.add('hidden');
+                        }
+                        reader.readAsDataURL(file);
+                    } else {
+                        imagePreview.classList.add('hidden');
+                        fileIcon.classList.remove('hidden');
                     }
-                    reader.readAsDataURL(file);
-                } else {
-                    imagePreview.classList.add('hidden');
-                    fileIcon.classList.remove('hidden');
                 }
-            }
-        });
+            });
 
-        removeFileBtn.addEventListener('click', function() {
-            attachmentInput.value = '';
-            previewContainer.classList.add('hidden');
-        });
+            removeFileBtn.addEventListener('click', function() {
+                attachmentInput.value = '';
+                previewContainer.classList.add('hidden');
+            });
+        }
 
         function formatBytes(bytes, decimals = 2) {
             if (bytes === 0) return '0 Bytes';
