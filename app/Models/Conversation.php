@@ -23,4 +23,9 @@ class Conversation extends Model
     public function userTow(){
         return $this->belongsTo(User::class ,'user_two_id');
     }
+
+    public function lastMessage()
+    {
+        return $this->hasOne(Message::class, 'conversation_id')->latestOfMany();
+    }
 }
