@@ -46,7 +46,7 @@
     </a>
 
     <a href="{{ route('chat.index') }}"
-       class="pb-3 border-b-2 {{ request()->routeIs('chat.index')
+       class="pb-3 border-b-2 {{ request()->routeIs('chat.index') || request()->routeIs('chat.show')
             ? 'border-indigo-500 text-gray-900'
             : 'border-transparent text-gray-500 hover:text-gray-900 hover:border-indigo-300' }}">
         Messagerie

@@ -81,12 +81,12 @@ class User extends Authenticatable
     }
     public function sentRelationships()
     {
-        return $this->hasMany(\App\Models\Relationship::class, 'sender_id', 'id');
+        return $this->hasMany(Relationship::class, 'sender_id', 'id');
     }
 
     public function receivedRelationships()
     {
-        return $this->hasMany(\App\Models\Relationship::class, 'reciever_id', 'id'); 
+        return $this->hasMany(Relationship::class, 'reciever_id', 'id'); 
     }
 
     public function friends()
@@ -99,7 +99,7 @@ class User extends Authenticatable
         )->wherePivot('status', 'ACCEPTED');
     }
     public function notifications(){
-        return $this->hasMany(\App\Models\Notifications ,'user_id' , 'id');
+        return $this->hasMany(Notification ,'user_id' , 'id');
     }
 
 
