@@ -4,15 +4,17 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use App\UserRole;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Spatie\Permission\Traits\HasRoles;
 use App\Models\RelationShip;
 
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, HasRoles;
 
     /**
      * The attributes that are mass assignable.
@@ -26,6 +28,8 @@ class User extends Authenticatable
         'role',
         'biographie' , 
         'image',
+        'password', //hnaaa
+        'last_seen',
     ];
 
     /**
@@ -38,6 +42,11 @@ class User extends Authenticatable
         'remember_token',
     ];
 
+    protected $casts =[
+        'amis'=>'array',
+        'last_seen'=>'datetime',
+    ];
+    
     /**
      * Get the attributes that should be cast.
      *
@@ -49,6 +58,7 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'role' => UserRole::class,
+            'last_seen' => 'datetime',
         ];
     }
     public function hasAmi($idAmi): bool{
@@ -96,6 +106,9 @@ class User extends Authenticatable
         return $this->hasMany(\App\Models\Notifications ,'user_id' , 'id');
     }
 
-
+    public function isOnline(): bool
+    {
+        return $this->last_seen && $this->last_seen->greaterThan(now()->subMinutes(5));
+    }
     
 }
