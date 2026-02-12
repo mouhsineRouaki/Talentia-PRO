@@ -48,9 +48,9 @@ class RegisteredUserController extends Controller
             'password' => Hash::make($request->password),
         ]);
             if($user->role === "RECRUTEUR"){
-                $user->assigneRole('recruteur');
+                $user->assignRole('recruteur');
             }else{
-                $user->assigneRole('rechercheur');
+                $user->assignRole('rechercheur');
             }
 
         event(new Registered($user));
@@ -58,8 +58,9 @@ class RegisteredUserController extends Controller
         Auth::login($user);
 
         if ($user->hasRole('recruteur')) {
-            return redirect()->route('dashboard.recruteur');
-        }
+
+                return redirect()->route('dashboard.recruteur');
+            }
             return redirect()->route('dashboard.rechercheur');
     }
 }

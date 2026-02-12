@@ -7,8 +7,8 @@ use App\UserRole;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use App\Models\RelationShip;
 use Spatie\Permission\Traits\HasRoles;
+use App\Models\RelationShip;
 use Spatie\Permission\Models\Role;
 use Laravel\Cashier\Billable;
 
@@ -16,6 +16,7 @@ class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable, HasRoles, Billable;
+
 
     /**
      * The attributes that are mass assignable.
@@ -30,6 +31,7 @@ class User extends Authenticatable
         'biographie' , 
         'image',
         'password'
+
     ];
 
     /**
@@ -40,6 +42,10 @@ class User extends Authenticatable
     protected $hidden = [
         'password',
         'remember_token',
+    ];
+
+    protected $casts =[
+        'amis'=>'array',
     ];
 
     /**
@@ -79,12 +85,12 @@ class User extends Authenticatable
     }
     public function sentRelationships()
     {
-        return $this->hasMany(\App\Models\Relationship::class, 'sender_id', 'id');
+        return $this->hasMany(Relationship::class, 'sender_id', 'id');
     }
 
     public function receivedRelationships()
     {
-        return $this->hasMany(\App\Models\Relationship::class, 'reciever_id', 'id'); 
+        return $this->hasMany(Relationship::class, 'reciever_id', 'id'); 
     }
 
     public function friends()
@@ -97,7 +103,7 @@ class User extends Authenticatable
         )->wherePivot('status', 'ACCEPTED');
     }
     public function notifications(){
-        return $this->hasMany(\App\Models\Notifications ,'user_id' , 'id');
+        return $this->hasMany(Notification ,'user_id' , 'id');
     }
 
 
