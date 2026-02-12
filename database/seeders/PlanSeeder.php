@@ -19,7 +19,7 @@ class PlanSeeder extends Seeder
             ["name" => "Business", "stripe_plan_id" => "prod_TxtLXdXfQjZZNj", "stripe_price_id" => "price_1SzxZ7K20VStH8qrXAKtVRUj"],
         ];
 
-        foreach ($plans as $plan){
+        foreach ($plans as $plan){  
             Plan::create($plan);
         }
     }

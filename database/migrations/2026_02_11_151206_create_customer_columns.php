@@ -3,6 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB;
 
 return new class extends Migration
 {
@@ -22,19 +23,30 @@ return new class extends Migration
     /**
      * Reverse the migrations.
      */
-    public function down(): void
-    {
-        Schema::table('users', function (Blueprint $table) {
-            $table->dropIndex([
-                'stripe_id',
-            ]);
+public function down(): void
+{
+    DB::statement('DROP INDEX IF EXISTS users_stripe_id_index');
 
-            $table->dropColumn([
-                'stripe_id',
-                'pm_type',
-                'pm_last_four',
-                'trial_ends_at',
-            ]);
-        });
-    }
+    Schema::table('users', function (Blueprint $table) {
+
+        if (Schema::hasColumn('users', 'stripe_id')) {
+            $table->dropColumn('stripe_id');
+        }
+
+        if (Schema::hasColumn('users', 'pm_type')) {
+            $table->dropColumn('pm_type');
+        }
+
+        if (Schema::hasColumn('users', 'pm_last_four')) {
+            $table->dropColumn('pm_last_four');
+        }
+
+        if (Schema::hasColumn('users', 'trial_ends_at')) {
+            $table->dropColumn('trial_ends_at');
+        }
+
+    });
+}
+
+
 };
