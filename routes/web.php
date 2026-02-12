@@ -48,6 +48,7 @@ Route::middleware('auth')->group(function () {
     
     Route::view('/premium', 'subscription.index')->name('premium');
     Route::get('/checkout/{plan}', [PaymentController::class, 'checkout'])->name('checkout');
+    Route::get('/check/{name}', [PaymentController::class, 'check'])->name('check');
     
     Route::view('/relationships', 'relationships.index')->name('relationships.index');
     Route::view('/notifications', 'notifications.index')->name('notifications.index');

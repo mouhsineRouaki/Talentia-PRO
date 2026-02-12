@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\Plan;
+
 
 class PaymentController extends Controller
 {
@@ -35,5 +37,18 @@ class PaymentController extends Controller
         $selectedPlan = $plans[$plan] ?? $plans['pro'];
 
         return view('subscription.checkout', compact('selectedPlan'));
+    }
+
+    public function check($name, Request $request){
+        $plan = Plan::whereName($name)->first();
+        $planPrice = $plan->stripe_price_id;
+
+        return $request->user()
+            ->newSubscription('default', $planPrice)
+            ->allowPromotionCodes()
+            ->checkout([
+                'success_url' => route('premium'),
+                'cancel_url' => route('premium'),
+            ]);
     }
 }

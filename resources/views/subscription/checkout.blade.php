@@ -55,22 +55,9 @@
                                 <input type="text" name="name" id="card-holder" value="{{ auth()->user()->name }}" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" placeholder="John Doe">
                             </div>
 
-                            <!-- Stripe Element Placeholder -->
-                            <div>
-                                <label class="block text-sm font-medium text-slate-700 mb-1">Card Information</label>
-                                <div class="block w-full rounded-lg border border-gray-300 bg-white p-3 shadow-sm">
-                                    <div id="card-element">
-                                        <!-- A Stripe Element will be inserted here. -->
-                                        <div class="flex items-center space-x-2 text-gray-400">
-                                            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
-                                            <span class="text-sm">Card number &nbsp; MM/YY &nbsp; CVC</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
 
                             <button type="button" class="mt-6 w-full flex justify-center py-3 px-4 border border-transparent rounded-xl shadow-sm text-sm font-bold text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all">
-                                Pay ${{ $selectedPlan['price'] }} Securely
+                                <a href="{{ route('check', $selectedPlan['name']) }}">Pay ${{ $selectedPlan['price'] }} Securely</a> 
                             </button>
                             
                             <p class="text-xs text-center text-slate-400 mt-4">
