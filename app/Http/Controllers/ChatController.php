@@ -13,8 +13,7 @@ use Carbon\Carbon;
 
 class ChatController extends Controller
 {
-    public function index(Request $request)
-    {
+    public function index(Request $request) {
         $userId = auth()->id();
         $conversations = Conversation::where('user_one_id', $userId)
             ->orWhere('user_two_id', $userId)
@@ -37,8 +36,7 @@ class ChatController extends Controller
         return view('chat.index', compact('conversations', 'selected_user'));
     }
 
-    public function show(Request $request, $id)
-    {
+    public function show(Request $request, $id){
         $userId = auth()->id();
         $conversations = Conversation::where('user_one_id', $userId)
             ->orWhere('user_two_id', $userId)
@@ -144,12 +142,13 @@ class ChatController extends Controller
 
         $receiverId = ($conversation->user_one_id == $senderId) ? $conversation->user_two_id : $conversation->user_one_id;
 
-        Notification::create([
+        $notification = Notification::create([
             'user_id' => $receiverId,
             'contenu' => "Vous avez reçu un nouveau message de " . auth()->user()->prenom . ' ' . auth()->user()->nom,
             'date_envoyer' => now(),
         ]);
 
+        event(new NotificationCreated($notification));
         event(new MessageSent($message));
 
         return response()->json([

@@ -14,19 +14,15 @@ class NewMessageNotification extends Notification implements ShouldQueue
 
     protected $message;
 
-    public function __construct($message)
-    {
+    public function __construct($message) {
         $this->message = $message;
     }
 
-    public function via($notifiable)
-    {
-        // database, broadcast, and email
+    public function via($notifiable) {
         return ['database', 'broadcast', 'mail'];
     }
 
-    public function toDatabase($notifiable)
-    {
+    public function toDatabase($notifiable){
         return [
             'message_id' => $this->message->id,
             'sender_id' => $this->message->sender_id,

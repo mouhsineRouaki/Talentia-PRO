@@ -16,13 +16,11 @@ class MessageSent implements ShouldBroadcast
 
     public $message;
 
-    public function __construct(Message $message)
-    {
+    public function __construct(Message $message) {
         $this->message = $message->load(['sender', 'conversation']);
     }
 
-    public function broadcastOn()
-    {
+    public function broadcastOn() {
         $receiverId = ($this->message->conversation->user_one_id == $this->message->sender_id)
             ? $this->message->conversation->user_two_id
             : $this->message->conversation->user_one_id;
@@ -33,13 +31,11 @@ class MessageSent implements ShouldBroadcast
         ];
     }
 
-    public function broadcastAs()
-    {
+    public function broadcastAs(){
         return 'message.sent';
     }
 
-    public function broadcastWith()
-    {
+    public function broadcastWith() {
         return [
             'message' => [
                 'id' => $this->message->id,
