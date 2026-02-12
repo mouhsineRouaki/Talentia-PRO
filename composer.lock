@@ -639,7 +639,6 @@
             "time": "2025-03-06T22:45:56+00:00"
         },
         {
-<<<<<<< HEAD
             "name": "firebase/php-jwt",
             "version": "v7.0.2",
             "source": {
@@ -667,40 +666,17 @@
             "suggest": {
                 "ext-sodium": "Support EdDSA (Ed25519) signatures",
                 "paragonie/sodium_compat": "Support EdDSA (Ed25519) signatures when libsodium is not present"
-=======
-            "name": "evenement/evenement",
-            "version": "v3.0.2",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/igorw/evenement.git",
-                "reference": "0a16b0d71ab13284339abb99d9d2bd813640efbc"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/igorw/evenement/zipball/0a16b0d71ab13284339abb99d9d2bd813640efbc",
-                "reference": "0a16b0d71ab13284339abb99d9d2bd813640efbc",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=7.0"
-            },
-            "require-dev": {
-                "phpunit/phpunit": "^9 || ^6"
->>>>>>> 15439afaf4d5d3435cdba44a0a9779ef564323cf
             },
             "type": "library",
             "autoload": {
                 "psr-4": {
-<<<<<<< HEAD
                     "Firebase\\JWT\\": "src"
-=======
+
                     "Evenement\\": "src/"
->>>>>>> 15439afaf4d5d3435cdba44a0a9779ef564323cf
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
             "license": [
-<<<<<<< HEAD
                 "BSD-3-Clause"
             ],
             "authors": [
@@ -726,26 +702,6 @@
                 "source": "https://github.com/firebase/php-jwt/tree/v7.0.2"
             },
             "time": "2025-12-16T22:17:28+00:00"
-=======
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Igor Wiedler",
-                    "email": "igor@wiedler.ch"
-                }
-            ],
-            "description": "Événement is a very simple event dispatching library for PHP",
-            "keywords": [
-                "event-dispatcher",
-                "event-emitter"
-            ],
-            "support": {
-                "issues": "https://github.com/igorw/evenement/issues",
-                "source": "https://github.com/igorw/evenement/tree/v3.0.2"
-            },
-            "time": "2023-08-08T05:53:35+00:00"
->>>>>>> 15439afaf4d5d3435cdba44a0a9779ef564323cf
         },
         {
             "name": "fruitcake/php-cors",
@@ -3247,7 +3203,6 @@
             "time": "2025-11-20T02:34:59+00:00"
         },
         {
-<<<<<<< HEAD
             "name": "paragonie/constant_time_encoding",
             "version": "v3.1.3",
             "source": {
@@ -3263,29 +3218,10 @@
             },
             "require": {
                 "php": "^8"
-=======
-            "name": "paragonie/sodium_compat",
-            "version": "v2.5.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/paragonie/sodium_compat.git",
-                "reference": "4714da6efdc782c06690bc72ce34fae7941c2d9f"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/paragonie/sodium_compat/zipball/4714da6efdc782c06690bc72ce34fae7941c2d9f",
-                "reference": "4714da6efdc782c06690bc72ce34fae7941c2d9f",
-                "shasum": ""
-            },
-            "require": {
-                "php": "^8.1",
-                "php-64bit": "*"
->>>>>>> 15439afaf4d5d3435cdba44a0a9779ef564323cf
             },
             "require-dev": {
                 "infection/infection": "^0",
                 "nikic/php-fuzzer": "^0",
-<<<<<<< HEAD
                 "phpunit/phpunit": "^9|^10|^11",
                 "vimeo/psalm": "^4|^5|^6"
             },
@@ -3293,40 +3229,15 @@
             "autoload": {
                 "psr-4": {
                     "ParagonIE\\ConstantTime\\": "src/"
-=======
-                "phpunit/phpunit": "^7|^8|^9|^10|^11",
-                "vimeo/psalm": "^4|^5|^6"
-            },
-            "suggest": {
-                "ext-sodium": "Better performance, password hashing (Argon2i), secure memory management (memzero), and better security."
-            },
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "2.0.x-dev"
-                }
-            },
-            "autoload": {
-                "files": [
-                    "autoload.php"
-                ],
-                "psr-4": {
-                    "ParagonIE\\Sodium\\": "namespaced/"
->>>>>>> 15439afaf4d5d3435cdba44a0a9779ef564323cf
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
             "license": [
-<<<<<<< HEAD
                 "MIT"
-=======
-                "ISC"
->>>>>>> 15439afaf4d5d3435cdba44a0a9779ef564323cf
             ],
             "authors": [
                 {
                     "name": "Paragon Initiative Enterprises",
-<<<<<<< HEAD
                     "email": "security@paragonie.com",
                     "homepage": "https://paragonie.com",
                     "role": "Maintainer"
@@ -3409,55 +3320,6 @@
                 "source": "https://github.com/paragonie/random_compat"
             },
             "time": "2020-10-15T08:29:30+00:00"
-=======
-                    "email": "security@paragonie.com"
-                },
-                {
-                    "name": "Frank Denis",
-                    "email": "jedisct1@pureftpd.org"
-                }
-            ],
-            "description": "Pure PHP implementation of libsodium; uses the PHP extension if it exists",
-            "keywords": [
-                "Authentication",
-                "BLAKE2b",
-                "ChaCha20",
-                "ChaCha20-Poly1305",
-                "Chapoly",
-                "Curve25519",
-                "Ed25519",
-                "EdDSA",
-                "Edwards-curve Digital Signature Algorithm",
-                "Elliptic Curve Diffie-Hellman",
-                "Poly1305",
-                "Pure-PHP cryptography",
-                "RFC 7748",
-                "RFC 8032",
-                "Salpoly",
-                "Salsa20",
-                "X25519",
-                "XChaCha20-Poly1305",
-                "XSalsa20-Poly1305",
-                "Xchacha20",
-                "Xsalsa20",
-                "aead",
-                "cryptography",
-                "ecdh",
-                "elliptic curve",
-                "elliptic curve cryptography",
-                "encryption",
-                "libsodium",
-                "php",
-                "public-key cryptography",
-                "secret-key cryptography",
-                "side-channel resistant"
-            ],
-            "support": {
-                "issues": "https://github.com/paragonie/sodium_compat/issues",
-                "source": "https://github.com/paragonie/sodium_compat/tree/v2.5.0"
-            },
-            "time": "2025-12-30T16:12:18+00:00"
->>>>>>> 15439afaf4d5d3435cdba44a0a9779ef564323cf
         },
         {
             "name": "phpoption/phpoption",
