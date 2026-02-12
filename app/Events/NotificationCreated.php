@@ -16,23 +16,19 @@ class NotificationCreated implements ShouldBroadcast
 
     public $notification;
 
-    public function __construct(Notification $notification)
-    {
+    public function __construct(Notification $notification) {
         $this->notification = $notification;
     }
 
-    public function broadcastOn()
-    {
+    public function broadcastOn() {
         return new PrivateChannel('user.' . $this->notification->user_id);
     }
 
-    public function broadcastAs()
-    {
+    public function broadcastAs() {
         return 'notification.created';
     }
 
-    public function broadcastWith()
-    {
+    public function broadcastWith() {
         return [
             'notification' => [
                 'id' => $this->notification->id,
@@ -43,8 +39,7 @@ class NotificationCreated implements ShouldBroadcast
         ];
     }
 
-    protected function getNotificationType($content)
-    {
+    protected function getNotificationType($content) {
         if (str_contains($content, 'Offre'))
             return 'offer';
         if (str_contains($content, 'amitié'))

@@ -5,21 +5,6 @@ namespace App\Listeners;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 
-class SendEmailNotification
-{
-    /**
-     * Create the event listener.
-     */
-    public function __construct()
-    {
-        //
-    }
+class SendEmailNotification {
 
-    /**
-     * Handle the event.
-     */
-    public function handle(object $event): void
-    {
-        //
-    }
 }
