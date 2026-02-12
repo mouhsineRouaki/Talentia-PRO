@@ -6,6 +6,10 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\JobOffer;
 use App\Models\Recruteur;
+use App\Models\Notification;
+use App\Models\User;
+use App\UserRole;
+use App\Events\NotificationCreated;
 
 class JobOfferController extends Controller
 {
@@ -26,10 +30,10 @@ class JobOfferController extends Controller
     {
         $data = $request->validate([
             'type_contrat' => ['required', 'string', 'max:50'],
-            'titre'        => ['required', 'string', 'max:150'],
-            'description'  => ['required', 'string'],
-            'image'        => ['required', 'string', 'max:255'],
-            'ville'        => ['nullable', 'string', 'max:80'],
+            'titre' => ['required', 'string', 'max:150'],
+            'description' => ['required', 'string'],
+            'image' => ['required', 'string', 'max:255'],
+            'ville' => ['nullable', 'string', 'max:80'],
         ]);
 
         $recruteur = Recruteur::find($request->user()->id);
@@ -46,16 +50,28 @@ class JobOfferController extends Controller
             ]);
         }
 
-        JobOffer::create([
+        $offer = JobOffer::create([
             'recruteur_user_id' => $request->user()->id,
-            'type_contrat'      => $data['type_contrat'],
-            'titre'             => $data['titre'],
-            'description'       => $data['description'],
-            'image'             => $data['image'],
-            'ville'             => $data['ville'] ?? null,
-            'is_closed'         => false,
-            'closed_at'         => null,
+            'type_contrat' => $data['type_contrat'],
+            'titre' => $data['titre'],
+            'description' => $data['description'],
+            'image' => $data['image'],
+            'ville' => $data['ville'] ?? null,
+            'is_closed' => false,
+            'closed_at' => null,
         ]);
+
+        // Envoyer une notification à tous les chercheurs
+        $chercheurs = User::where('role', UserRole::RECHERCHEUR)->get();
+        foreach ($chercheurs as $chercheur) {
+            $notification = Notification::create([
+                'user_id' => $chercheur->id,
+                'contenu' => "Nouvel offre d'emploi : " . $offer->titre . " à " . ($offer->ville ?? 'Partout'),
+                'date_envoyer' => now(),
+            ]);
+
+            event(new NotificationCreated($notification));
+        }
 
         return redirect()->route('offers.index')->with('success', 'Offre créée ');
     }
@@ -71,6 +87,7 @@ class JobOfferController extends Controller
 
         return redirect()->route('offers.index')->with('success', 'Offre clôturée');
     }
+
     public function show(Request $request, JobOffer $offer)
     {
         $offer->load([
@@ -80,14 +97,17 @@ class JobOfferController extends Controller
 
         return view('offers.recruteur.show', compact('offer'));
     }
-    public function acceptedApplicants(JobOffer $offer)
-{
-    $offer->load(['applications' => function ($q) {
-        $q->where('status', 'ACCEPTED')
-          ->latest()
-          ->with('rechercheur');
-    }]);
 
-    return view('offers.recruteur.accepted', compact('offer'));
-}
+    public function acceptedApplicants(JobOffer $offer)
+    {
+        $offer->load([
+            'applications' => function ($q) {
+                $q->where('status', 'ACCEPTED')
+                ->latest()
+                ->with('rechercheur');
+            }
+        ]);
+
+        return view('offers.recruteur.accepted', compact('offer'));
+    }
 }

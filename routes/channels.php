@@ -14,3 +14,7 @@ Broadcast::channel('conversation.{id}', function ($user, $id) {
             $conversation->user_two_id
         ]);
 });
+
+Broadcast::channel('user.{id}', function ($user, $id) {
+    return $user->id == $id;
+});
