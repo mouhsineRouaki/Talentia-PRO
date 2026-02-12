@@ -89,7 +89,7 @@
                                 window.Echo.private(`user.${userId}`)
                                     .listen('.message.sent', (e) => {
                                         // Skip if we're on the chat page with this conversation
-                                        if (window.location.pathname.includes(`/chat/${e.message.conversation_id}`)) {
+                                        if (window.location.pathname.includes(`/conversations/${e.message.conversation_id}`)) {
                                             return;
                                         }
                                         this.addToast({
@@ -97,7 +97,7 @@
                                             sender: e.message.sender_name,
                                             message: e.message.text || '📎 Pièce jointe',
                                             image: e.message.sender_image,
-                                            url: `/chat/${e.message.conversation_id}`
+                                            url: `/conversations/${e.message.conversation_id}`
                                         });
                                     })
                                     .listen('.notification.created', (e) => {

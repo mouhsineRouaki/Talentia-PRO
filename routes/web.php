@@ -41,10 +41,12 @@ Route::middleware('auth')->group(function () {
 
     Route::post('/relationships/accept', [RelationShipController::class, 'accepter'])->name('relationships.accept');
     Route::post('/relationships/refuse', [RelationShipController::class, 'refuser'])->name('relationships.refuse');
-    Route::get('/dashboard', function () {
-        return view('recruteur/dashboard'); })->middleware(['auth', 'verified'])->name('dashboard.recruteur');
-    Route::get('/dashboard', function () {
-        return view('rechercheur/dashboard'); })->middleware(['auth', 'verified'])->name('dashboard.rechercheur');
+    Route::get('/recruteur/dashboard', function () {
+        return view('recruteur/dashboard');
+    })->middleware(['auth', 'verified'])->name('dashboard.recruteur');
+    Route::get('/rechercheur/dashboard', function () {
+        return view('rechercheur/dashboard');
+    })->middleware(['auth', 'verified'])->name('dashboard.rechercheur');
     Route::get('/search', [UserController::class, 'searchPage'])->name('users.search');
     Route::get('/users/{id}', [UserController::class, 'detailsPage'])->name('users.show');
     Route::view('/relationships', 'relationships.index')->name('relationships.index');
@@ -68,7 +70,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/offers/{offer}/accepted', [JobOfferController::class, 'acceptedApplicants'])
         ->name('offers.accepted');
     Route::get('/offers', function () {
-        return view('offers.rechercheur.index'); })->name('offers.rechercheurs.index');
+        return view('offers.rechercheur.index');
+    })->name('offers.rechercheurs.index');
     Route::get('/rechercheur/profile', [RechercheurProfileController::class, 'edit'])
         ->name('rechercheur.profile.edit');
 
