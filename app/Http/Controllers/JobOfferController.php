@@ -8,6 +8,7 @@ use App\Models\JobOffer;
 use App\Models\Notification;
 use App\Models\User;
 use App\UserRole;
+use App\Events\NotificationCreated;
 
 class JobOfferController extends Controller
 {
@@ -48,11 +49,13 @@ class JobOfferController extends Controller
         // Envoyer une notification à tous les chercheurs
         $chercheurs = User::where('role', UserRole::RECHERCHEUR)->get();
         foreach ($chercheurs as $chercheur) {
-            Notification::create([
+            $notification = Notification::create([
                 'user_id' => $chercheur->id,
                 'contenu' => "Nouvel offre d'emploi : " . $offer->titre . " à " . ($offer->ville ?? 'Partout'),
                 'date_envoyer' => now(),
             ]);
+
+            event(new NotificationCreated($notification));
         }
 
         return redirect()->route('offers.index')->with('success', 'Offre créée ');
