@@ -38,6 +38,7 @@ class RegisteredUserController extends Controller
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
             'role' => ['required', 'string', 'max:255'],
             'image' => ['required', 'string', 'max:300'],
+            'titre_profil' => ['nullable', 'string', 'max:150'], // Validate titre_profil
         ]);
         $user = User::create([
             'nom' => $request->nom,
@@ -49,8 +50,24 @@ class RegisteredUserController extends Controller
         ]);
             if($user->role === "RECRUTEUR"){
                 $user->assignRole('recruteur');
+                Recruteur::create([
+                    'user_id' => $user->id,
+                    'entreprise' => 'Indépendant', // Default since input removed
+                    'site_web' => null,
+                    'telephone' => null,
+                    'ville' => null,
+                    'adresse' => null,
+                    'description_entreprise' => null,
+                ]);
             }else{
                 $user->assignRole('rechercheur');
+                Rechercheur::create([
+                    'user_id' => $user->id,
+                    'titre_profil' => $request->titre_profil ?? 'Nouveau Rechercheur',
+                    'specialite' => 'Généraliste', 
+                    'cv_path' => null,
+                    'ville' => null,
+                ]);
             }
 
         event(new Registered($user));

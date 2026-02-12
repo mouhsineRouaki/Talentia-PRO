@@ -102,10 +102,10 @@ Route::middleware('auth')->group(function () {
         ->name('rechercheur.skills.detach');
 });
 
-    Route::get('/github/redirect', [App\Http\Controllers\SocialAuthController::class, 'redirectToGithub'])->name('auth.github');
-    Route::get('/github/callback', [App\Http\Controllers\SocialAuthController::class, 'handleGithubCallback'])->name('auth.github.callback');
+    Route::get('/auth/github/redirect', [App\Http\Controllers\SocialAuthController::class, 'redirectToGithub'])->name('auth.github');
+    Route::get('/auth/github/callback', [App\Http\Controllers\SocialAuthController::class, 'handleGithubCallback'])->name('auth.github.callback');
 
-    Route::get('/google/redirect', [App\Http\Controllers\GoogleLoginController::class, 'redirectToGoogle'])->name('google.redirect');  
-    Route::get('/google/callback', [App\Http\Controllers\GoogleLoginController::class, 'handleGoogleCallback'])->name('google.callback');
+    Route::get('/auth/google/redirect', [App\Http\Controllers\GoogleLoginController::class, 'redirectToGoogle'])->name('google.redirect');  
+    Route::get('/auth/google/callback', [App\Http\Controllers\GoogleLoginController::class, 'handleGoogleCallback'])->name('google.callback');
 
 require __DIR__.'/auth.php';

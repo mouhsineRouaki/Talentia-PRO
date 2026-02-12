@@ -139,6 +139,91 @@
                             </div>
                         </div>
 
+                        @php
+                            $isRecruiter = false;
+                            if($u->role instanceof \App\UserRole) {
+                                $isRecruiter = $u->role === \App\UserRole::RECRUTEUR;
+                            } else {
+                                $isRecruiter = $u->role === 'RECRUTEUR';
+                            }
+                        @endphp
+                        @if($isRecruiter)
+                        <div class="rounded-2xl bg-white border border-slate-200 p-6 shadow-sm">
+                            <div class="flex items-center justify-between">
+                                <h3 class="text-sm font-black text-slate-900">Entreprise</h3>
+                                <span class="text-[11px] font-black uppercase tracking-widest text-slate-400">
+                                    Détails
+                                </span>
+                            </div>
+
+                            <div class="mt-5 grid gap-4">
+                                <div class="grid gap-4 sm:grid-cols-2">
+                                    <div>
+                                        <label class="text-xs font-black uppercase tracking-widest text-slate-500">Nom Entreprise</label>
+                                        <input
+                                            name="entreprise"
+                                            value="{{ old('entreprise', $u->recruteur->entreprise ?? '') }}"
+                                            class="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm focus:border-[#0a66c2] focus:ring-[#0a66c2]"
+                                        >
+                                        @error('entreprise') <p class="mt-1 text-xs font-semibold text-red-600">{{ $message }}</p> @enderror
+                                    </div>
+                                    <div>
+                                        <label class="text-xs font-black uppercase tracking-widest text-slate-500">Site Web</label>
+                                        <input
+                                            name="site_web"
+                                            type="url"
+                                            placeholder="https://"
+                                            value="{{ old('site_web', $u->recruteur->site_web ?? '') }}"
+                                            class="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm focus:border-[#0a66c2] focus:ring-[#0a66c2]"
+                                        >
+                                        @error('site_web') <p class="mt-1 text-xs font-semibold text-red-600">{{ $message }}</p> @enderror
+                                    </div>
+                                </div>
+
+                                <div class="grid gap-4 sm:grid-cols-2">
+                                    <div>
+                                        <label class="text-xs font-black uppercase tracking-widest text-slate-500">Ville</label>
+                                        <input
+                                            name="ville"
+                                            value="{{ old('ville', $u->recruteur->ville ?? '') }}"
+                                            class="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm focus:border-[#0a66c2] focus:ring-[#0a66c2]"
+                                        >
+                                        @error('ville') <p class="mt-1 text-xs font-semibold text-red-600">{{ $message }}</p> @enderror
+                                    </div>
+                                    <div>
+                                        <label class="text-xs font-black uppercase tracking-widest text-slate-500">Téléphone</label>
+                                        <input
+                                            name="telephone"
+                                            value="{{ old('telephone', $u->recruteur->telephone ?? '') }}"
+                                            class="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm focus:border-[#0a66c2] focus:ring-[#0a66c2]"
+                                        >
+                                        @error('telephone') <p class="mt-1 text-xs font-semibold text-red-600">{{ $message }}</p> @enderror
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label class="text-xs font-black uppercase tracking-widest text-slate-500">Adresse</label>
+                                    <input
+                                        name="adresse"
+                                        value="{{ old('adresse', $u->recruteur->adresse ?? '') }}"
+                                        class="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm focus:border-[#0a66c2] focus:ring-[#0a66c2]"
+                                    >
+                                    @error('adresse') <p class="mt-1 text-xs font-semibold text-red-600">{{ $message }}</p> @enderror
+                                </div>
+
+                                <div>
+                                    <label class="text-xs font-black uppercase tracking-widest text-slate-500">Description Entreprise</label>
+                                    <textarea
+                                        name="description_entreprise"
+                                        rows="3"
+                                        class="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm focus:border-[#0a66c2] focus:ring-[#0a66c2]"
+                                    >{{ old('description_entreprise', $u->recruteur->description_entreprise ?? '') }}</textarea>
+                                    @error('description_entreprise') <p class="mt-1 text-xs font-semibold text-red-600">{{ $message }}</p> @enderror
+                                </div>
+                            </div>
+                        </div>
+                        @endif
+
                         {{-- Card: Profil --}}
                         <div class="rounded-2xl bg-white border border-slate-200 p-6 shadow-sm">
                             <div class="flex items-center justify-between">
