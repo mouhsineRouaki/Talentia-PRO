@@ -6,6 +6,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\JobOfferController;
 use App\Http\Controllers\ApplicationsController;
 use App\Http\Controllers\RechercheurProfileController;
+use App\Http\Controllers\PaymentController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -44,6 +45,11 @@ Route::middleware('auth')->group(function () {
     Route::get('/dashboard', function () {return view('rechercheur/dashboard');})->middleware(['auth', 'verified'])->name('dashboard.rechercheur');
     Route::get('/search',[UserController::class , 'searchPage'] )->name('users.search');
     Route::get('/users/{id}', [UserController::class , 'detailsPage'])->name('users.show');
+    
+    Route::view('/premium', 'subscription.index')->name('premium');
+    Route::get('/checkout/{plan}', [PaymentController::class, 'checkout'])->name('checkout');
+    Route::get('/check/{name}', [PaymentController::class, 'check'])->name('check');
+    
     Route::view('/relationships', 'relationships.index')->name('relationships.index');
     Route::view('/notifications', 'notifications.index')->name('notifications.index');
 
