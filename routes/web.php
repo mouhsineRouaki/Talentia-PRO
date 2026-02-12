@@ -6,6 +6,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\JobOfferController;
 use App\Http\Controllers\ApplicationsController;
 use App\Http\Controllers\RechercheurProfileController;
+use App\Http\Controllers\PaymentController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -44,6 +45,11 @@ Route::middleware('auth')->group(function () {
     Route::get('/dashboard', function () {return view('rechercheur/dashboard');})->middleware(['auth', 'verified'])->name('dashboard.rechercheur');
     Route::get('/search',[UserController::class , 'searchPage'] )->name('users.search');
     Route::get('/users/{id}', [UserController::class , 'detailsPage'])->name('users.show');
+    
+    Route::view('/premium', 'subscription.index')->name('premium');
+    Route::get('/checkout/{plan}', [PaymentController::class, 'checkout'])->name('checkout');
+    Route::get('/check/{name}', [PaymentController::class, 'check'])->name('check');
+    
     Route::view('/relationships', 'relationships.index')->name('relationships.index');
     Route::view('/notifications', 'notifications.index')->name('notifications.index');
 
@@ -96,10 +102,10 @@ Route::middleware('auth')->group(function () {
         ->name('rechercheur.skills.detach');
 });
 
-    Route::get('/github/redirect', [App\Http\Controllers\SocialAuthController::class, 'redirectToGithub'])->name('auth.github');
-    Route::get('/github/callback', [App\Http\Controllers\SocialAuthController::class, 'handleGithubCallback'])->name('auth.github.callback');
+    Route::get('/auth/github/redirect', [App\Http\Controllers\SocialAuthController::class, 'redirectToGithub'])->name('auth.github');
+    Route::get('/auth/github/callback', [App\Http\Controllers\SocialAuthController::class, 'handleGithubCallback'])->name('auth.github.callback');
 
-    Route::get('/google/redirect', [App\Http\Controllers\GoogleLoginController::class, 'redirectToGoogle'])->name('google.redirect');  
-    Route::get('/google/callback', [App\Http\Controllers\GoogleLoginController::class, 'handleGoogleCallback'])->name('google.callback');
+    Route::get('/auth/google/redirect', [App\Http\Controllers\GoogleLoginController::class, 'redirectToGoogle'])->name('google.redirect');  
+    Route::get('/auth/google/callback', [App\Http\Controllers\GoogleLoginController::class, 'handleGoogleCallback'])->name('google.callback');
 
 require __DIR__.'/auth.php';
