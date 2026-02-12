@@ -7,28 +7,33 @@
                 <div class="flex items-center justify-between mb-4">
                     <h2 class="text-2xl font-bold text-gray-800">Messages</h2>
                     <button class="p-2 rounded-full hover:bg-gray-100 text-gray-500 transition">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                         </svg>
                     </button>
                 </div>
                 <div class="relative">
                     <span class="absolute inset-y-0 left-0 flex items-center pl-3">
                         <svg class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                         </svg>
                     </span>
-                    <input type="text" placeholder="Rechercher..." class="w-full py-2 pl-10 pr-4 bg-gray-50 border-none rounded-2xl text-sm focus:ring-2 focus:ring-indigo-500 focus:bg-white transition-all placeholder-gray-400 text-gray-700">
+                    <input type="text" placeholder="Rechercher..."
+                        class="w-full py-2 pl-10 pr-4 bg-gray-50 border-none rounded-2xl text-sm focus:ring-2 focus:ring-indigo-500 focus:bg-white transition-all placeholder-gray-400 text-gray-700">
                 </div>
             </div>
 
             <div class="flex-1 overflow-y-auto custom-scrollbar">
-                 @forelse ($conversations as $conv)
+                @forelse ($conversations as $conv)
                     @php
                         $friend = ($conv->user_one_id == auth()->id()) ? $conv->userTow : $conv->userOne;
                         $isSelected = isset($conversation) && $conversation->id === $conv->id;
                     @endphp
-                    <a href="{{ route('chat.show', $conv->id) }}" data-con-id="{{ $conv->id }}" class="block group relative px-4 py-4 cursor-pointer transition-all duration-200 hover:bg-indigo-50/50 {{ $isSelected ? 'bg-indigo-50 border-r-4 border-indigo-600' : 'bg-white border-r-4 border-transparent' }}">
+                    <a href="{{ route('chat.show', $conv->id) }}" data-con-id="{{ $conv->id }}"
+                        class="block group relative px-4 py-4 cursor-pointer transition-all duration-200 hover:bg-indigo-50/50 {{ $isSelected ? 'bg-indigo-50 border-r-4 border-indigo-600' : 'bg-white border-r-4 border-transparent' }}">
                         <div class="flex items-start space-x-4">
                             <div class="relative">
                                 <img src="{{ $friend->image ?? 'https://i.pravatar.cc/150?u='.$friend->id }}" alt="{{ $friend->nom }}" class="w-12 h-12 rounded-full object-cover ring-2 ring-offset-2 {{ $isSelected ? 'ring-indigo-500' : 'ring-gray-100 group-hover:ring-indigo-200' }} transition-all">
@@ -45,18 +50,22 @@
                                 
                                 @if($conv->unread_count > 0)
                                     <span class="absolute -top-1 -right-1 flex h-4 w-4">
-                                      <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                                      <span class="relative inline-flex rounded-full h-4 w-4 bg-red-500 border-2 border-white"></span>
+                                        <span
+                                            class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                                        <span
+                                            class="relative inline-flex rounded-full h-4 w-4 bg-red-500 border-2 border-white"></span>
                                     </span>
                                 @endif
                             </div>
                             <div class="flex-1 min-w-0 py-1">
                                 <div class="flex justify-between items-center mb-1">
-                                    <h3 class="text-sm font-bold {{ $isSelected ? 'text-indigo-900' : 'text-gray-900' }} truncate group-hover:text-indigo-700 transition-colors">
+                                    <h3
+                                        class="text-sm font-bold {{ $isSelected ? 'text-indigo-900' : 'text-gray-900' }} truncate group-hover:text-indigo-700 transition-colors">
                                         {{ $friend->nom }} {{  $friend->prenom }}
                                     </h3>
                                     @if($conv->lastMessage)
-                                        <span class="text-[10px] text-gray-400">{{ $conv->lastMessage->created_at->format('H:i') }}</span>
+                                        <span
+                                            class="text-[10px] text-gray-400">{{ $conv->lastMessage->created_at->format('H:i') }}</span>
                                     @endif
                                 </div>
                                 
@@ -83,14 +92,19 @@
                                                 @if($conv->lastMessage->text)
                                                     {{ Str::limit($conv->lastMessage->text, 25) }}
                                                 @elseif(!empty($conv->lastMessage->attach))
-                                                    <span class="flex items-center text-xs"><svg class="w-3 h-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/></svg> Pièce jointe</span>
+                                                    <span class="flex items-center text-xs"><svg class="w-3 h-3 mr-1" fill="none"
+                                                            viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                                d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+                                                        </svg> Pièce jointe</span>
                                                 @endif
                                             @else
                                                 <span class="text-indigo-400 italic">Démarrer une discussion</span>
                                             @endif
                                         </span>
                                         @if($conv->unread_count > 0)
-                                            <span class="unread-badge bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-lg shadow-red-500/30 ml-2 flex-shrink-0 animate-pulse">{{ $conv->unread_count }}</span>
+                                            <span
+                                                class="unread-badge bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-lg shadow-red-500/30 ml-2 flex-shrink-0 animate-pulse">{{ $conv->unread_count }}</span>
                                         @endif
                                     </div>
                                 </div>
@@ -100,16 +114,17 @@
                 @empty
                     <div class="p-6 text-center text-gray-500">
                         <p class="text-sm">Aucune conversation.</p>
-                        <a href="{{ route('friends.index') }}" class="mt-2 inline-block text-xs font-medium text-indigo-600 hover:text-indigo-500">
+                        <a href="{{ route('friends.index') }}"
+                            class="mt-2 inline-block text-xs font-medium text-indigo-600 hover:text-indigo-500">
                             Commencer une discussion
                         </a>
                     </div>
                 @endforelse
-            </div>  
+            </div>
         </div>
 
         <div class="flex-1 flex flex-col bg-white">
-                @if($selected_user)
+            @if($selected_user)
                 <div class="px-6 py-3 border-b border-gray-200 bg-white shadow-sm z-10 flex items-center justify-between">
                     <div class="flex items-center space-x-4">
                          <div class="relative">
@@ -147,28 +162,35 @@
                         </div>
                     </div>
                     <div class="flex items-center space-x-3">
-                         <button class="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-full transition">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-    </svg>
+                        <button class="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-full transition">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                            </svg>
                         </button>
                         <button class="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-full transition">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.82v6.36a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
-    </svg>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M15 10l4.553-2.276A1 1 0 0121 8.82v6.36a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                            </svg>
                         </button>
                         <div class="w-px h-6 bg-gray-200 mx-2"></div>
                         <button class="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
-    </svg>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
+                            </svg>
                         </button>
                     </div>
                 </div>
 
                 <div class="flex-1 overflow-y-auto p-6 space-y-6 bg-slate-50 relative">
                     <div class="flex justify-center">
-                        <span class="px-4 py-1 text-xs font-semibold text-gray-500 bg-gray-200 rounded-full shadow-sm">Aujourd'hui</span>
+                        <span
+                            class="px-4 py-1 text-xs font-semibold text-gray-500 bg-gray-200 rounded-full shadow-sm">Aujourd'hui</span>
                     </div>
 
                     @if(isset($messages))
@@ -180,64 +202,83 @@
                                             <div class="mb-1">
                                                 @if(Str::startsWith($message->attach['mime_type'], 'image/'))
                                                     <a href="{{ asset('storage/' . $message->attach['path']) }}" target="_blank">
-                                                        <img src="{{ asset('storage/' . $message->attach['path']) }}" class="max-w-[200px] max-h-[200px] rounded-lg shadow-sm border border-indigo-200 object-cover cursor-pointer hover:opacity-90 transition">
+                                                        <img src="{{ asset('storage/' . $message->attach['path']) }}"
+                                                            class="max-w-[200px] max-h-[200px] rounded-lg shadow-sm border border-indigo-200 object-cover cursor-pointer hover:opacity-90 transition">
                                                     </a>
                                                 @else
-                                                    <a href="{{ asset('storage/' . $message->attach['path']) }}" target="_blank" class="flex items-center space-x-2 bg-indigo-50 p-2 rounded-lg border border-indigo-100 hover:bg-indigo-100 transition shadow-sm max-w-[200px]">
+                                                    <a href="{{ asset('storage/' . $message->attach['path']) }}" target="_blank"
+                                                        class="flex items-center space-x-2 bg-indigo-50 p-2 rounded-lg border border-indigo-100 hover:bg-indigo-100 transition shadow-sm max-w-[200px]">
                                                         <div class="bg-indigo-100 p-2 rounded-lg text-indigo-500">
-                                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
+                                                                viewBox="0 0 24 24" stroke="currentColor">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                                                             </svg>
                                                         </div>
                                                         <div class="flex-1 min-w-0">
-                                                            <p class="text-xs font-medium text-indigo-900 truncate">{{ $message->attach['filename'] }}</p>
-                                                            <p class="text-[10px] text-indigo-500">{{ number_format($message->attach['size'] / 1024, 1) }} KB</p>
+                                                            <p class="text-xs font-medium text-indigo-900 truncate">
+                                                                {{ $message->attach['filename'] }}</p>
+                                                            <p class="text-[10px] text-indigo-500">
+                                                                {{ number_format($message->attach['size'] / 1024, 1) }} KB</p>
                                                         </div>
                                                     </a>
                                                 @endif
                                             </div>
                                         @endif
                                         @if($message->text)
-                                            <div class="bg-gradient-to-br from-indigo-600 to-indigo-700 px-5 py-3 rounded-2xl rounded-br-none shadow-lg shadow-indigo-500/20 text-white text-sm leading-relaxed tracking-wide">
+                                            <div
+                                                class="bg-gradient-to-br from-indigo-600 to-indigo-700 px-5 py-3 rounded-2xl rounded-br-none shadow-lg shadow-indigo-500/20 text-white text-sm leading-relaxed tracking-wide">
                                                 {{ $message->text }}
                                             </div>
                                         @endif
                                         <div class="flex items-center space-x-1 pr-1 justify-end">
                                             <span class="text-xs text-gray-400">{{ $message->created_at->format('H:i') }}</span>
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 text-indigo-400" viewBox="0 0 20 20" fill="currentColor">
-                                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 text-indigo-400" viewBox="0 0 20 20"
+                                                fill="currentColor">
+                                                <path fill-rule="evenodd"
+                                                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                                    clip-rule="evenodd" />
                                             </svg>
                                         </div>
                                     </div>
-                                    <img src="{{ auth()->user()->image ?? 'https://i.pravatar.cc/150?u='.auth()->id() }}" alt="Me" class="w-8 h-8 rounded-full object-cover shadow-sm mb-1">
+                                    <img src="{{ auth()->user()->image ?? 'https://i.pravatar.cc/150?u=' . auth()->id() }}" alt="Me"
+                                        class="w-8 h-8 rounded-full object-cover shadow-sm mb-1">
                                 </div>
                             @else
                                 <div class="flex items-end space-x-2">
-                                    <img src="{{ $selected_user->image ?? 'https://i.pravatar.cc/150?u='.$selected_user->id }}" alt="{{ $selected_user->nom }}" class="w-8 h-8 rounded-full object-cover shadow-sm mb-1">
+                                    <img src="{{ $selected_user->image ?? 'https://i.pravatar.cc/150?u=' . $selected_user->id }}"
+                                        alt="{{ $selected_user->nom }}" class="w-8 h-8 rounded-full object-cover shadow-sm mb-1">
                                     <div class="flex flex-col space-y-1 max-w-lg">
                                         @if(isset($message->attach) && !empty($message->attach['path']))
                                             <div class="mb-1">
                                                 @if(Str::startsWith($message->attach['mime_type'], 'image/'))
                                                     <a href="{{ asset('storage/' . $message->attach['path']) }}" target="_blank">
-                                                        <img src="{{ asset('storage/' . $message->attach['path']) }}" class="max-w-[200px] max-h-[200px] rounded-lg shadow-sm border border-gray-100 object-cover cursor-pointer hover:opacity-90 transition">
+                                                        <img src="{{ asset('storage/' . $message->attach['path']) }}"
+                                                            class="max-w-[200px] max-h-[200px] rounded-lg shadow-sm border border-gray-100 object-cover cursor-pointer hover:opacity-90 transition">
                                                     </a>
                                                 @else
-                                                    <a href="{{ asset('storage/' . $message->attach['path']) }}" target="_blank" class="flex items-center space-x-2 bg-gray-50 p-2 rounded-lg border border-gray-100 hover:bg-gray-100 transition shadow-sm max-w-[200px]">
+                                                    <a href="{{ asset('storage/' . $message->attach['path']) }}" target="_blank"
+                                                        class="flex items-center space-x-2 bg-gray-50 p-2 rounded-lg border border-gray-100 hover:bg-gray-100 transition shadow-sm max-w-[200px]">
                                                         <div class="bg-gray-200 p-2 rounded-lg text-gray-500">
-                                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
+                                                                viewBox="0 0 24 24" stroke="currentColor">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                                                             </svg>
                                                         </div>
                                                         <div class="flex-1 min-w-0">
-                                                            <p class="text-xs font-medium text-gray-700 truncate">{{ $message->attach['filename'] }}</p>
-                                                            <p class="text-[10px] text-gray-400">{{ number_format($message->attach['size'] / 1024, 1) }} KB</p>
+                                                            <p class="text-xs font-medium text-gray-700 truncate">
+                                                                {{ $message->attach['filename'] }}</p>
+                                                            <p class="text-[10px] text-gray-400">
+                                                                {{ number_format($message->attach['size'] / 1024, 1) }} KB</p>
                                                         </div>
                                                     </a>
                                                 @endif
                                             </div>
                                         @endif
                                         @if($message->text)
-                                            <div class="bg-white px-5 py-3 rounded-2xl rounded-bl-none shadow-sm text-gray-800 text-sm leading-relaxed border border-gray-100 hover:shadow-md transition-shadow">
+                                            <div
+                                                class="bg-white px-5 py-3 rounded-2xl rounded-bl-none shadow-sm text-gray-800 text-sm leading-relaxed border border-gray-100 hover:shadow-md transition-shadow">
                                                 {{ $message->text }}
                                             </div>
                                         @endif
@@ -248,9 +289,10 @@
                         @endforeach
                     @endif
                 </div>
-            
+
                 <div class="p-4 bg-white border-t border-gray-200">
-                    <form id="chat-form" action="{{ route('chat.send') }}" method="POST" enctype="multipart/form-data" class="bg-white p-2 rounded-3xl border border-gray-100 shadow-xl flex items-end space-x-2 relative z-20">
+                    <form id="chat-form" action="{{ route('chat.send') }}" method="POST" enctype="multipart/form-data"
+                        class="bg-white p-2 rounded-3xl border border-gray-100 shadow-xl flex items-end space-x-2 relative z-20">
                         @csrf
                         @if(isset($selected_user))
                             <input type="hidden" name="receiver_id" value="{{ $selected_user->id }}">
@@ -259,129 +301,145 @@
                             <input type="hidden" name="conversation_id" value="{{ $conversation->id }}">
                         @endif
 
-                    <input type="file" name="attachment" id="attachment" class="hidden" style="display: none;">
-                    <button type="button" onclick="document.getElementById('attachment').click()" class="p-3 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-full transition-all duration-200">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
-                        </svg>
-                    </button>
-
-                    <div class="flex-1 relative">
-                        <!-- File Preview Container -->
-                        <div id="file-preview-container" class="hidden absolute bottom-full left-0 mb-4 w-full">
-                            <div class="bg-white rounded-2xl p-3 border border-indigo-100 shadow-2xl inline-flex items-center space-x-4 animate-fade-in-up">
-                                <div id="preview-icon-wrapper" class="relative group">
-                                    <img id="image-preview" src="" class="hidden w-16 h-16 object-cover rounded-xl border-2 border-indigo-100 shadow-sm">
-                                    <div id="file-icon" class="hidden w-16 h-16 bg-indigo-50 rounded-xl flex items-center justify-center border-2 border-indigo-100 text-indigo-500">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                        </svg>
-                                    </div>
-                                    <button type="button" id="remove-file" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 shadow-md hover:bg-red-600 transition transform hover:scale-110 opacity-0 group-hover:opacity-100">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
-                                            <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
-                                        </svg>
-                                    </button>
-                                </div>
-                                <div class="flex flex-col max-w-xs">
-                                    <span id="file-name" class="text-sm font-bold text-gray-800 truncate block"></span>
-                                    <span id="file-size" class="text-xs text-indigo-500 font-medium"></span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <textarea 
-                            name="message"
-                            id="message-input"
-                            placeholder="Écrivez votre message..." 
-                            class="w-full bg-transparent border-none focus:ring-0 resize-none py-3 px-2 text-gray-800 placeholder-gray-400 max-h-32 text-sm font-medium"
-                            rows="1"
-                        ></textarea>
-                    </div>
-                    
-                    <div class="flex items-center space-x-2 pb-1">
-                        <button type="submit" class="bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-full p-3 shadow-lg shadow-indigo-500/30 hover:shadow-indigo-500/50 hover:scale-105 transition-all duration-200">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 transform rotate-90" viewBox="0 0 20 20" fill="currentColor">
-                                <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z" />
+                        <input type="file" name="attachment" id="attachment" class="hidden" style="display: none;">
+                        <button type="button" onclick="document.getElementById('attachment').click()"
+                            class="p-3 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-full transition-all duration-200">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
                             </svg>
                         </button>
-                    </div>
-                </form>
-            </div>
-                @else
+
+                        <div class="flex-1 relative">
+                            <!-- File Preview Container -->
+                            <div id="file-preview-container" class="hidden absolute bottom-full left-0 mb-4 w-full">
+                                <div
+                                    class="bg-white rounded-2xl p-3 border border-indigo-100 shadow-2xl inline-flex items-center space-x-4 animate-fade-in-up">
+                                    <div id="preview-icon-wrapper" class="relative group">
+                                        <img id="image-preview" src=""
+                                            class="hidden w-16 h-16 object-cover rounded-xl border-2 border-indigo-100 shadow-sm">
+                                        <div id="file-icon"
+                                            class="hidden w-16 h-16 bg-indigo-50 rounded-xl flex items-center justify-center border-2 border-indigo-100 text-indigo-500">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none"
+                                                viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                            </svg>
+                                        </div>
+                                        <button type="button" id="remove-file"
+                                            class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 shadow-md hover:bg-red-600 transition transform hover:scale-110 opacity-0 group-hover:opacity-100">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20"
+                                                fill="currentColor">
+                                                <path fill-rule="evenodd"
+                                                    d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                                                    clip-rule="evenodd" />
+                                            </svg>
+                                        </button>
+                                    </div>
+                                    <div class="flex flex-col max-w-xs">
+                                        <span id="file-name" class="text-sm font-bold text-gray-800 truncate block"></span>
+                                        <span id="file-size" class="text-xs text-indigo-500 font-medium"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <textarea name="message" id="message-input" placeholder="Écrivez votre message..."
+                                class="w-full bg-transparent border-none focus:ring-0 resize-none py-3 px-2 text-gray-800 placeholder-gray-400 max-h-32 text-sm font-medium"
+                                rows="1"></textarea>
+                        </div>
+
+                        <div class="flex items-center space-x-2 pb-1">
+                            <button type="submit"
+                                class="bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-full p-3 shadow-lg shadow-indigo-500/30 hover:shadow-indigo-500/50 hover:scale-105 transition-all duration-200">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 transform rotate-90"
+                                    viewBox="0 0 20 20" fill="currentColor">
+                                    <path
+                                        d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z" />
+                                </svg>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            @else
                 <div class="flex-1 flex flex-col justify-center items-center bg-slate-50">
                     <div class="text-center p-8 bg-white rounded-2xl shadow-sm border border-gray-100 max-w-md">
-                        <div class="w-16 h-16 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                        <div
+                            class="w-16 h-16 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                             </svg>
                         </div>
                         <h2 class="text-2xl font-bold text-gray-900 mb-2">Vos messages</h2>
-                        <p class="text-gray-500 mb-6">Sélectionnez une conversation dans la liste à gauche pour commencer à discuter.</p>
-                        <a href="{{ route('friends.index') }}" class="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-xl font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700 active:bg-indigo-900 focus:outline-none focus:border-indigo-900 focus:ring ring-indigo-300 disabled:opacity-25 transition ease-in-out duration-150">
+                        <p class="text-gray-500 mb-6">Sélectionnez une conversation dans la liste à gauche pour commencer à
+                            discuter.</p>
+                        <a href="{{ route('friends.index') }}"
+                            class="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-xl font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700 active:bg-indigo-900 focus:outline-none focus:border-indigo-900 focus:ring ring-indigo-300 disabled:opacity-25 transition ease-in-out duration-150">
                             Trouver des amis
                         </a>
                     </div>
                 </div>
-                @endif
+            @endif
 
 
         </div>
     </div>
 
     <script>
-    document.addEventListener('DOMContentLoaded', function () {
+        document.addEventListener('DOMContentLoaded', function () {
 
-        let userId = {{ auth()->id() }};
-        let conversationId = {{ isset($conversation) ? $conversation->id : 'null' }};
+            let userId = {{ auth()->id() }};
+            let conversationId = {{ isset($conversation) ? $conversation->id : 'null' }};
 
-        let form = document.getElementById('chat-form');
-        let messagesBox = document.querySelector('.flex-1.overflow-y-auto.p-6.space-y-6');
+            let form = document.getElementById('chat-form');
+            let messagesBox = document.querySelector('.flex-1.overflow-y-auto.p-6.space-y-6');
 
-        if (messagesBox) {
-            messagesBox.scrollTop = messagesBox.scrollHeight;
-        }
+            if (messagesBox) {
+                messagesBox.scrollTop = messagesBox.scrollHeight;
+            }
 
-        function isVue(conversationId){ 
-            fetch(`/conversations/${conversationId}/isVue`, {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-              }
-            }); 
-        }
+            function isVue(conversationId) {
+                fetch(`/conversations/${conversationId}/isVue`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    }
+                });
+            }
 
-        if (conversationId) {
-            isVue(conversationId);
-        }
+            if (conversationId) {
+                isVue(conversationId);
+            }
 
-        function addMessage(message) {
+            function addMessage(message) {
 
-            if (!messagesBox) return;
+                if (!messagesBox) return;
 
-            let isMe = message.sender_id == userId;
+                let isMe = message.sender_id == userId;
 
-            let myImage = "{{ auth()->user()->image }}";
-            let otherImage = "{{ isset($selected_user) ? $selected_user->image : '' }}";
+                let myImage = "{{ auth()->user()->image ?? 'https://ui-avatars.com/api/?name=' . urlencode(auth()->user()->nom) . '&color=7F9CF5&background=EBF4FF' }}";
+                let otherImage = "{{ isset($selected_user) ? ($selected_user->image ?? 'https://ui-avatars.com/api/?name=' . urlencode($selected_user->nom) . '&color=7F9CF5&background=EBF4FF') : '' }}";
 
-            let img = myImage;
+                let img = isMe ? myImage : otherImage;
 
-            let html = "";
+                let html = "";
 
-            if (isMe) {
-                let attachmentHtml = '';
-                if(message.attach && message.attach.path) {
-                    let path = "/storage/" + message.attach.path;
-                    if(message.attach.mime_type.startsWith('image/')) {
-                        attachmentHtml = `
+                if (isMe) {
+                    let attachmentHtml = '';
+                    if (message.attach && message.attach.path) {
+                        let path = "/storage/" + message.attach.path;
+                        if (message.attach.mime_type.startsWith('image/')) {
+                            attachmentHtml = `
                             <div class="mb-1">
                                 <a href="${path}" target="_blank">
                                     <img src="${path}" class="max-w-[200px] max-h-[200px] rounded-lg shadow-sm border border-indigo-200 object-cover cursor-pointer hover:opacity-90 transition">
                                 </a>
                             </div>`;
-                    } else {
-                        attachmentHtml = `
+                        } else {
+                            attachmentHtml = `
                             <div class="mb-1">
                                 <a href="${path}" target="_blank" class="flex items-center space-x-2 bg-indigo-50 p-2 rounded-lg border border-indigo-100 hover:bg-indigo-100 transition shadow-sm max-w-[200px]">
                                     <div class="bg-indigo-100 p-2 rounded-lg text-indigo-500">
@@ -395,10 +453,10 @@
                                     </div>
                                 </a>
                             </div>`;
+                        }
                     }
-                }
 
-                html = `
+                    html = `
                 <div class="flex items-end justify-end space-x-2">
                     <div class="flex flex-col space-y-1 max-w-lg items-end">
                         ${attachmentHtml}
@@ -411,19 +469,19 @@
                 </div>
                 `;
 
-            } else {
-                let attachmentHtml = '';
-                if(message.attach && message.attach.path) {
-                    let path = "/storage/" + message.attach.path;
-                    if(message.attach.mime_type && message.attach.mime_type.startsWith('image/')) {
-                         attachmentHtml = `
+                } else {
+                    let attachmentHtml = '';
+                    if (message.attach && message.attach.path) {
+                        let path = "/storage/" + message.attach.path;
+                        if (message.attach.mime_type && message.attach.mime_type.startsWith('image/')) {
+                            attachmentHtml = `
                             <div class="mb-1">
                                 <a href="${path}" target="_blank">
                                     <img src="${path}" class="max-w-[200px] max-h-[200px] rounded-lg shadow-sm border border-gray-100 object-cover cursor-pointer hover:opacity-90 transition">
                                 </a>
                             </div>`;
-                    } else {
-                         attachmentHtml = `
+                        } else {
+                            attachmentHtml = `
                             <div class="mb-1">
                                 <a href="${path}" target="_blank" class="flex items-center space-x-2 bg-gray-50 p-2 rounded-lg border border-gray-100 hover:bg-gray-100 transition shadow-sm max-w-[200px]">
                                     <div class="bg-gray-200 p-2 rounded-lg text-gray-500">
@@ -437,10 +495,10 @@
                                     </div>
                                 </a>
                             </div>`;
+                        }
                     }
-                }
 
-                html = `
+                    html = `
                 <div class="flex items-end space-x-2">
                     <img src="${img}" class="w-8 h-8 rounded-full object-cover shadow-sm mb-1">
                     <div class="flex flex-col space-y-1 max-w-lg">
@@ -450,143 +508,152 @@
                     </div>
                 </div>
                 `;
+                }
+
+                messagesBox.insertAdjacentHTML('beforeend', html);
+
+                messagesBox.scrollTop = messagesBox.scrollHeight;
+            }
+            if (form) {
+
+                form.addEventListener('submit', function (e) {
+
+                    e.preventDefault();
+
+                    let textarea = form.querySelector('textarea');
+                    let text = textarea.value;
+                    let fileInput = document.getElementById('attachment');
+                    let hasFile = fileInput.files.length > 0;
+
+                    if (text.trim() == "" && !hasFile) return;
+
+                    let data = new FormData(form);
+
+                    fetch(form.action, {
+                        method: "POST",
+                        body: data,
+                        headers: {
+                            "X-CSRF-TOKEN": document
+                                .querySelector('meta[name="csrf-token"]').content,
+                            "Accept": "application/json"
+                        }
+                    })
+                        .then(res => res.json())
+                        .then(res => {
+                            console.log(res);
+                            if (res.success) {
+                                textarea.value = "";
+                                fileInput.value = "";
+                                document.getElementById('file-preview-container').classList.add('hidden');
+                                addMessage(res.message);
+                            }
+
+                        })
+                        .catch(err => console.log(err));
+
+                });
             }
 
-            messagesBox.insertAdjacentHTML('beforeend', html);
+            function initMessaging() {
+                if (typeof Echo === 'undefined') {
+                    setTimeout(initMessaging, 200);
+                    return;
+                }
 
-            messagesBox.scrollTop = messagesBox.scrollHeight;
-        }
-        if (form) {
-            
-            form.addEventListener('submit', function (e) {
+                @foreach($conversations as $conv)
+                    Echo.private("conversation.{{ $conv->id }}")
+                        .listen(".message.sent", function (e) {
 
-                e.preventDefault();
+                            if (e.message.sender_id != userId) {
 
-                let textarea = form.querySelector('textarea');
-                let text = textarea.value;
-                let fileInput = document.getElementById('attachment');
-                let hasFile = fileInput.files.length > 0;
-
-                if (text.trim() == "" && !hasFile) return;
-
-                let data = new FormData(form);
-
-                fetch(form.action, {
-                    method: "POST",
-                    body: data,
-                    headers: {
-                        "X-CSRF-TOKEN": document
-                            .querySelector('meta[name="csrf-token"]').content,
-                        "Accept": "application/json"
-                    }
-                })
-                .then(res => res.json())
-                .then(res => {
-                    console.log(res);
-                    if (res.success) {
-                        textarea.value = "";
-                        fileInput.value = ""; 
-                        document.getElementById('file-preview-container').classList.add('hidden'); 
-                        addMessage(res.message);
-                    }
-
-                })
-                .catch(err => console.log(err));
-
-            });
-        }
-
-        @foreach($conversations as $conv)
-            Echo.private("conversation.{{ $conv->id }}")
-                .listen(".message.sent", function (e) {
-                    
-                    if (e.message.sender_id != userId) {
-                        
-                        if (conversationId && conversationId == {{ $conv->id }}) {
-                            addMessage(e.message); 
-                            isVue(conversationId); 
-                        } 
-                        else {
-                            let convItem = document.querySelector(`a[data-con-id="{{ $conv->id }}"]`);
-                            
-                            if (convItem) {
-                                let previewText = e.message.text ? e.message.text.substring(0, 20) + (e.message.text.length > 20 ? '...' : '') : '📎 Pièce jointe';
-                                
-                                let time = new Date(e.message.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-                                
-                                let previewSpan = convItem.querySelector('.truncate.block.opacity-90');
-                                if(previewSpan) {
-                                    previewSpan.innerHTML = previewText;
+                                if (conversationId && conversationId == {{ $conv->id }}) {
+                                    addMessage(e.message);
+                                    isVue(conversationId);
                                 }
-                                let timeSpan = convItem.querySelector('.flex.justify-between.items-center.mb-1 span.text-\\[10px\\]');
-                                if (timeSpan) {
-                                    timeSpan.textContent = time;
-                                }
-                                let badge = convItem.querySelector('.unread-badge');
-                                
-                                if (badge) {
-                                    let count = parseInt(badge.textContent) || 0;
-                                    badge.textContent = count + 1;
-                                } else {
-                                    let badgeParent = convItem.querySelector('.flex.justify-between.items-center.w-full');
-                                    
-                                    if(badgeParent) {
-                                        badgeParent.insertAdjacentHTML('beforeend', `<span class="unread-badge bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-lg shadow-red-500/30 ml-2 flex-shrink-0 animate-pulse">1</span>`);
+                                else {
+                                    let convItem = document.querySelector(`a[data-con-id="{{ $conv->id }}"]`);
+
+                                    if (convItem) {
+                                        let previewText = e.message.text ? e.message.text.substring(0, 20) + (e.message.text.length > 20 ? '...' : '') : '📎 Pièce jointe';
+
+                                        let time = new Date(e.message.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+                                        let previewSpan = convItem.querySelector('.truncate.block.opacity-90');
+                                        if (previewSpan) {
+                                            previewSpan.innerHTML = previewText;
+                                        }
+                                        let timeSpan = convItem.querySelector('.flex.justify-between.items-center.mb-1 span.text-\\[10px\\]');
+                                        if (timeSpan) {
+                                            timeSpan.textContent = time;
+                                        }
+                                        let badge = convItem.querySelector('.unread-badge');
+
+                                        if (badge) {
+                                            let count = parseInt(badge.textContent) || 0;
+                                            badge.textContent = count + 1;
+                                        } else {
+                                            let badgeParent = convItem.querySelector('.flex.justify-between.items-center.w-full');
+
+                                            if (badgeParent) {
+                                                badgeParent.insertAdjacentHTML('beforeend', `<span class="unread-badge bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-lg shadow-red-500/30 ml-2 flex-shrink-0 animate-pulse">1</span>`);
+                                            }
+                                        }
                                     }
                                 }
                             }
+                        });
+                @endforeach
+        }
+
+            initMessaging();
+
+            const attachmentInput = document.getElementById('attachment');
+            const previewContainer = document.getElementById('file-preview-container');
+            const imagePreview = document.getElementById('image-preview');
+            const fileIcon = document.getElementById('file-icon');
+            const fileName = document.getElementById('file-name');
+            const fileSize = document.getElementById('file-size');
+            const removeFileBtn = document.getElementById('remove-file');
+
+            if (attachmentInput) {
+                attachmentInput.addEventListener('change', function () {
+                    const file = this.files[0];
+                    if (file) {
+
+                        previewContainer.classList.remove('hidden');
+                        fileName.textContent = file.name;
+                        fileSize.textContent = formatBytes(file.size);
+
+                        if (file.type.startsWith('image/')) {
+                            const reader = new FileReader();
+                            reader.onload = function (e) {
+                                imagePreview.src = e.target.result;
+                                imagePreview.classList.remove('hidden');
+                                fileIcon.classList.add('hidden');
+                            }
+                            reader.readAsDataURL(file);
+                        } else {
+                            imagePreview.classList.add('hidden');
+                            fileIcon.classList.remove('hidden');
                         }
                     }
                 });
-        @endforeach
 
-        const attachmentInput = document.getElementById('attachment');
-        const previewContainer = document.getElementById('file-preview-container');
-        const imagePreview = document.getElementById('image-preview');
-        const fileIcon = document.getElementById('file-icon');
-        const fileName = document.getElementById('file-name');
-        const fileSize = document.getElementById('file-size');
-        const removeFileBtn = document.getElementById('remove-file');
+                removeFileBtn.addEventListener('click', function () {
+                    attachmentInput.value = '';
+                    previewContainer.classList.add('hidden');
+                });
+            }
 
-        if (attachmentInput) {
-            attachmentInput.addEventListener('change', function() {
-                const file = this.files[0];
-                if (file) {
-                    
-                    previewContainer.classList.remove('hidden');
-                    fileName.textContent = file.name;
-                    fileSize.textContent = formatBytes(file.size);
+            function formatBytes(bytes, decimals = 2) {
+                if (bytes === 0) return '0 Bytes';
+                const k = 1024;
+                const dm = decimals < 0 ? 0 : decimals;
+                const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+                const i = Math.floor(Math.log(bytes) / Math.log(k));
+                return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+            }
 
-                    if (file.type.startsWith('image/')) {
-                        const reader = new FileReader();
-                        reader.onload = function(e) {
-                            imagePreview.src = e.target.result;
-                            imagePreview.classList.remove('hidden');
-                            fileIcon.classList.add('hidden');
-                        }
-                        reader.readAsDataURL(file);
-                    } else {
-                        imagePreview.classList.add('hidden');
-                        fileIcon.classList.remove('hidden');
-                    }
-                }
-            });
-
-            removeFileBtn.addEventListener('click', function() {
-                attachmentInput.value = '';
-                previewContainer.classList.add('hidden');
-            });
-        }
-
-        function formatBytes(bytes, decimals = 2) {
-            if (bytes === 0) return '0 Bytes';
-            const k = 1024;
-            const dm = decimals < 0 ? 0 : decimals;
-            const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
-            const i = Math.floor(Math.log(bytes) / Math.log(k));
-            return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
-        }
-
-    });
-</script>
+        });
+    </script>
 </x-app-layout>

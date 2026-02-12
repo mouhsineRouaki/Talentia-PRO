@@ -18,12 +18,19 @@ class MessageSent implements ShouldBroadcast
 
     public function __construct(Message $message)
     {
-        $this->message = $message;
+        $this->message = $message->load(['sender', 'conversation']);
     }
 
     public function broadcastOn()
     {
-        return new PrivateChannel('conversation.' . $this->message->conversation_id);
+        $receiverId = ($this->message->conversation->user_one_id == $this->message->sender_id)
+            ? $this->message->conversation->user_two_id
+            : $this->message->conversation->user_one_id;
+
+        return [
+            new PrivateChannel('conversation.' . $this->message->conversation_id),
+            new PrivateChannel('user.' . $receiverId),
+        ];
     }
 
     public function broadcastAs()
@@ -41,6 +48,8 @@ class MessageSent implements ShouldBroadcast
                 'text' => $this->message->text,
                 'attach' => $this->message->attach,
                 'created_at' => $this->message->created_at,
+                'sender_name' => $this->message->sender->prenom . ' ' . $this->message->sender->nom,
+                'sender_image' => $this->message->sender->image,
             ]
         ];
     }
