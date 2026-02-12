@@ -78,9 +78,34 @@ class ProfileController extends Controller
             'biographie' => ['nullable', 'string'],
             'image' => ['nullable', 'url'],
             'role' => ['required', 'in:RECRUTEUR,RECHERCHEUR'],
+            'entreprise' => ['nullable', 'string', 'max:150'],
+            'site_web' => ['nullable', 'url', 'max:200'],
+            'telephone' => ['nullable', 'string', 'max:30'],
+            'ville' => ['nullable', 'string', 'max:80'],
+            'adresse' => ['nullable', 'string', 'max:255'],
+            'description_entreprise' => ['nullable', 'string'],
         ]);
 
-        $user->update($data);
+        $user->update([
+            'nom' => $data['nom'],
+            'prenom' => $data['prenom'],
+            'biographie' => $data['biographie'],
+            'image' => $data['image'],
+            'role' => $data['role'],
+        ]);
+
+        if ($user->hasRole('recruteur')) {
+            $recruteur = $user->recruteur()->firstOrCreate(['user_id' => $user->id], ['entreprise' => 'Indépendant']);
+            
+            $recruteur->update([
+                'entreprise' => $data['entreprise'] ?? $recruteur->entreprise,
+                'site_web' => $data['site_web'] ?? null,
+                'telephone' => $data['telephone'] ?? null,
+                'ville' => $data['ville'] ?? null,
+                'adresse' => $data['adresse'] ?? null,
+                'description_entreprise' => $data['description_entreprise'] ?? null,
+            ]);
+        }
 
         return redirect()
             ->route('profile.manage')

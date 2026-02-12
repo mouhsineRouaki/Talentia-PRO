@@ -92,6 +92,34 @@
                             </div>
                             <x-input-error :messages="$errors->get('role')" class="mt-2" />
                         </div>
+
+                         <!-- Section Profil (Visible only if RECHERCHEUR) -->
+                        <div id="profil-section" class="hidden space-y-4">
+                             <div>
+                                <label for="titre_profil" class="block text-sm font-medium text-gray-700">Titre du profil (ex: Développeur Fullstack)</label>
+                                <div class="mt-1">
+                                    <input id="titre_profil" name="titre_profil" type="text" class="block w-full appearance-none rounded-lg border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm" value="{{ old('titre_profil') }}">
+                                </div>
+                                <x-input-error :messages="$errors->get('titre_profil')" class="mt-2" />
+                            </div>
+                        </div>
+
+                        <script>
+                            const roleSelect = document.getElementById('role');
+                            const profilSection = document.getElementById('profil-section');
+
+                            function toggleProfil() {
+                                if(roleSelect.value === 'RECHERCHEUR') {
+                                    profilSection.classList.remove('hidden');
+                                } else {
+                                    profilSection.classList.add('hidden');
+                                }
+                            }
+
+                            roleSelect.addEventListener('change', toggleProfil);
+                            // Run on load in case of validation error redirect
+                            toggleProfil();
+                        </script>
                         
                         <!-- Image URL (Hidden/Optional or Styled) -->
                         <div>

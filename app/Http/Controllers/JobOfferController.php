@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\JobOffer;
+use App\Models\Recruteur;
 
 class JobOfferController extends Controller
 {
@@ -30,6 +31,20 @@ class JobOfferController extends Controller
             'image'        => ['required', 'string', 'max:255'],
             'ville'        => ['nullable', 'string', 'max:80'],
         ]);
+
+        $recruteur = Recruteur::find($request->user()->id);
+
+        if (!$recruteur) {
+             $recruteur = Recruteur::create([
+                'user_id' => $request->user()->id,
+                'entreprise' => 'Indépendant', 
+                'site_web' => null,
+                'telephone' => null,
+                'ville' => null,
+                'adresse' => null,
+                'description_entreprise' => null,
+            ]);
+        }
 
         JobOffer::create([
             'recruteur_user_id' => $request->user()->id,

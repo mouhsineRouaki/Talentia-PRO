@@ -146,6 +146,45 @@
                         </p>
                     </div>
 
+                    <!-- Enterprise Details (Recruiter Only) -->
+                    @if($role === 'RECRUTEUR' && $user->recruteur)
+                        <div class="mt-6 rounded-3xl border border-indigo-100 bg-indigo-50/50 p-6">
+                            <h3 class="text-xs font-black uppercase tracking-widest text-indigo-400">Entreprise</h3>
+                            
+                            <div class="mt-4 space-y-4">
+                                <div>
+                                    <h4 class="text-lg font-bold text-slate-900">{{ $user->recruteur->entreprise }}</h4>
+                                    @if($user->recruteur->description_entreprise)
+                                        <p class="mt-1 text-sm text-slate-600 leading-relaxed">{{ $user->recruteur->description_entreprise }}</p>
+                                    @endif
+                                </div>
+
+                                <div class="grid gap-4 sm:grid-cols-2">
+                                    @if($user->recruteur->site_web)
+                                        <div class="flex items-center gap-2 text-sm text-indigo-600">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"/></svg>
+                                            <a href="{{ $user->recruteur->site_web }}" target="_blank" class="hover:underline">{{ $user->recruteur->site_web }}</a>
+                                        </div>
+                                    @endif
+
+                                    @if($user->recruteur->ville)
+                                        <div class="flex items-center gap-2 text-sm text-slate-600">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                                            <span>{{ $user->recruteur->ville }}</span>
+                                        </div>
+                                    @endif
+                                    
+                                    @if($user->recruteur->adresse)
+                                        <div class="col-span-full flex items-start gap-2 text-sm text-slate-600">
+                                            <svg class="w-4 h-4 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+                                            <span>{{ $user->recruteur->adresse }}</span>
+                                        </div>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                    @endif
+
                     <!-- Mobile CTA -->
                     <a href="{{ url('/relationships') }}"
                        class="mt-6 sm:hidden inline-flex w-full justify-center items-center gap-2 py-3 px-4 rounded-2xl {{ $theme['btn'] }}
