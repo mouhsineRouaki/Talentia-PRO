@@ -182,4 +182,14 @@ class ChatController extends Controller
 
         return response()->json(['count' => $count]);
     }
+
+    public function typing(Request $request, $conversation_id)
+    {
+        $userId = auth()->id();
+        $user = User::find($userId);
+        
+        broadcast(new \App\Events\UserTyping($conversation_id, $user))->toOthers();
+
+        return response()->json(['status' => 'success']);
+    }
 }
