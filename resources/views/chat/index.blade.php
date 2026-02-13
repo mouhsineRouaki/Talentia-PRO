@@ -32,6 +32,17 @@
                         <div class="flex items-start space-x-4">
                             <div class="relative">
                                 <img src="{{ $friend->image ?? 'https://i.pravatar.cc/150?u='.$friend->id }}" alt="{{ $friend->nom }}" class="w-12 h-12 rounded-full object-cover ring-2 ring-offset-2 {{ $isSelected ? 'ring-indigo-500' : 'ring-gray-100 group-hover:ring-indigo-200' }} transition-all">
+                                
+                                <!-- Online/Offline Indicator -->
+                                @if(App\Helpers\UserHelper::isUserOnline($friend->id))
+                                    <span class="absolute bottom-0 right-0 flex h-3.5 w-3.5">
+                                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                                        <span class="relative inline-flex rounded-full h-3.5 w-3.5 bg-green-500 border-2 border-white"></span>
+                                    </span>
+                                @else
+                                    <span class="absolute bottom-0 right-0 h-3.5 w-3.5 rounded-full bg-gray-400 border-2 border-white"></span>
+                                @endif
+                                
                                 @if($conv->unread_count > 0)
                                     <span class="absolute -top-1 -right-1 flex h-4 w-4">
                                       <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
@@ -48,6 +59,20 @@
                                         <span class="text-[10px] text-gray-400">{{ $conv->lastMessage->created_at->format('H:i') }}</span>
                                     @endif
                                 </div>
+                                
+                                <!-- Online/Offline Status Text -->
+                                <div class="flex items-center gap-1.5 mb-1">
+                                    @if(App\Helpers\UserHelper::isUserOnline($friend->id))
+                                        <span class="w-1.5 h-1.5 rounded-full bg-green-500"></span>
+                                        <span class="text-[10px] font-medium text-green-600">En ligne</span>
+                                    @else
+                                        <span class="w-1.5 h-1.5 rounded-full bg-gray-400"></span>
+                                        <span class="text-[10px] font-medium text-gray-500">
+                                            {{ App\Helpers\UserHelper::getLastSeen($friend) }}
+                                        </span>
+                                    @endif
+                                </div>
+                                
                                 <div class="text-sm {{ $isSelected ? 'text-indigo-600' : 'text-gray-500' }} font-medium truncate">
                                     <div class="flex justify-between items-center w-full">
                                         <span class="truncate block opacity-90">
@@ -89,16 +114,36 @@
                     <div class="flex items-center space-x-4">
                          <div class="relative">
                             <img src="{{$selected_user->image }}" alt="{{ $selected_user->prenom  }}" class="w-10 h-10 rounded-full object-cover shadow-sm">
-                            <span class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 border-2 border-white rounded-full"></span>
+                            
+                            <!-- detecter en ligne et hors lign -->
+                            @if(App\Helpers\UserHelper::isUserOnline($selected_user->id))
+                                <span class="absolute bottom-0 right-0 flex h-3 w-3">
+                                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                                    <span class="relative inline-flex rounded-full h-3 w-3 bg-green-500 border-2 border-white"></span>
+                                </span>
+                            @else
+                                <span class="absolute bottom-0 right-0 w-3 h-3 bg-gray-400 border-2 border-white rounded-full"></span>
+                            @endif
                          </div>
                         <div>
                             <h3 class="text-lg font-bold text-gray-900">
                                 {{  $selected_user->prenom . ' ' . $selected_user->nom  }}
                             </h3>
-                            <div class="flex items-center space-x-1">
-                                <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
-                                <p class="text-xs text-green-600 font-medium">En ligne</p>
-                            </div>
+                            
+                            <!-- l'affichage-->
+                            @if(App\Helpers\UserHelper::isUserOnline($selected_user->id))
+                                <div class="flex items-center space-x-1">
+                                    <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                                    <p class="text-xs text-green-600 font-medium">En ligne</p>
+                                </div>
+                            @else
+                                <div class="flex items-center space-x-1">
+                                    <span class="w-2 h-2 rounded-full bg-gray-400"></span>
+                                    <p class="text-xs text-gray-500 font-medium">
+                                        {{ App\Helpers\UserHelper::getLastSeen($selected_user) }}
+                                    </p>
+                                </div>
+                            @endif
                         </div>
                     </div>
                     <div class="flex items-center space-x-3">
