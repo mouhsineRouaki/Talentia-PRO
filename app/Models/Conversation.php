@@ -10,6 +10,10 @@ class Conversation extends Model
     protected $fillable = [
         'user_one_id',
         'user_two_id',
+        'user_one_deleted_at',
+        'user_two_deleted_at',
+        'user_one_archived_at',
+        'user_two_archived_at',
     ];
 
     public function message(){
