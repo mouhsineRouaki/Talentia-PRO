@@ -412,12 +412,69 @@
 
             if (conversationId) {
                 isVue(conversationId);
+
+                // Typing Indicator
+                let typingIndicator = document.createElement('div');
+                typingIndicator.id = 'typing-indicator';
+                typingIndicator.className = 'hidden flex items-end space-x-2 mb-4 ml-2 transition-opacity duration-300 ease-in-out';
+                
+                let otherUserImage = "{{ isset($selected_user) ? $selected_user->image : 'https://i.pravatar.cc/150' }}";
+                
+                typingIndicator.innerHTML = `
+                    <img src="${otherUserImage}" class="w-8 h-8 rounded-full object-cover shadow-sm mb-1 opacity-70">
+                    <div class="bg-gray-100 px-4 py-2 rounded-2xl rounded-bl-none text-xs text-gray-500 font-medium italic flex items-center space-x-1">
+                        <span>écrit</span>
+                        <span class="flex space-x-1 ml-1">
+                            <span class="w-1 h-1 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0ms"></span>
+                            <span class="w-1 h-1 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 150ms"></span>
+                            <span class="w-1 h-1 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 300ms"></span>
+                        </span>
+                    </div>
+                `;
+                messagesBox.appendChild(typingIndicator);
+
+                let typingTimeout;
+                let isTyping = false;
+
+                if (form) {
+                    let inputField = form.querySelector('textarea');
+                    inputField.addEventListener('input', function() {
+                        if (!isTyping) {
+                            isTyping = true;
+                            fetch(`/conversations/${conversationId}/typing`, {
+                                method: "POST",
+                                headers: {
+                                    "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').content,
+                                    "Accept": "application/json"
+                                }
+                            });
+                            setTimeout(() => isTyping = false, 2000); 
+                        }
+                    });
+                }
+
+                Echo.private(`conversation.${conversationId}`)
+                    .listen('.user.typing', (e) => {
+                        if (e.user.id != userId) {
+                            let indicator = document.getElementById('typing-indicator');
+                            if(indicator){
+                                indicator.classList.remove('hidden');
+                                messagesBox.scrollTop = messagesBox.scrollHeight;
+                                
+                                clearTimeout(typingTimeout);
+                                typingTimeout = setTimeout(() => {
+                                    indicator.classList.add('hidden');
+                                }, 3000);
+                            }
+                        }
+                    });
             }
 
             function addMessage(message) {
 
                 if (!messagesBox) return;
 
+                let indicator = document.getElementById('typing-indicator');
                 let isMe = message.sender_id == userId;
 
                 let myImage = "{{ auth()->user()->image ?? 'https://ui-avatars.com/api/?name=' . urlencode(auth()->user()->nom) . '&color=7F9CF5&background=EBF4FF' }}";
@@ -457,7 +514,7 @@
                     }
 
                     html = `
-                <div class="flex items-end justify-end space-x-2">
+                <div class="flex items-end justify-end space-x-2 mb-4">
                     <div class="flex flex-col space-y-1 max-w-lg items-end">
                         ${attachmentHtml}
                         ${message.text ? `<div class="bg-gradient-to-br from-indigo-600 to-indigo-700 px-5 py-3 rounded-2xl rounded-br-none shadow-lg shadow-indigo-500/20 text-white text-sm leading-relaxed tracking-wide">${message.text}</div>` : ''}
@@ -499,7 +556,7 @@
                     }
 
                     html = `
-                <div class="flex items-end space-x-2">
+                <div class="flex items-end space-x-2 mb-4">
                     <img src="${img}" class="w-8 h-8 rounded-full object-cover shadow-sm mb-1">
                     <div class="flex flex-col space-y-1 max-w-lg">
                         ${attachmentHtml}
@@ -554,10 +611,10 @@
                 });
             }
 
-            function initMessaging() {
-                if (typeof Echo === 'undefined') {
-                    setTimeout(initMessaging, 200);
-                    return;
+                if (indicator && indicator.parentNode === messagesBox) {
+                    indicator.insertAdjacentHTML('beforebegin', html);
+                } else {
+                    messagesBox.insertAdjacentHTML('beforeend', html);
                 }
 
                 @foreach($conversations as $conv)
