@@ -64,6 +64,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/conversations/send', [ChatController::class, 'sendMessage'])->name('chat.send');
     Route::get('/conversations/{id}/messages', [ChatController::class, 'fetchMessage'])->name('chat.fetch');
     Route::post('/conversations/{id}/isVue', [ChatController::class, 'isVue'])->name('chat.isVue');
+    Route::post('/conversations/{id}/typing', [ChatController::class, 'typing'])->name('chat.typing');
 
 
     Route::get('recruteur/offers', [JobOfferController::class, 'index'])->name('offers.index');
