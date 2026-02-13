@@ -39,10 +39,26 @@
     </a>
 
     <a href=""
-       class="pb-3 border-b-2 {{ $active === 'notifications'
+        class="pb-3 border-b-2 {{ $active === 'notifications'
+             ? 'border-indigo-500 text-gray-900'
+             : 'border-transparent text-gray-500 hover:text-gray-900 hover:border-indigo-300' }}">
+         Notifications
+    </a>
+
+    <a href="{{ route('chat.index') }}"
+       class="pb-3 border-b-2 {{ request()->routeIs('chat.index') || request()->routeIs('chat.show')
             ? 'border-indigo-500 text-gray-900'
             : 'border-transparent text-gray-500 hover:text-gray-900 hover:border-indigo-300' }}">
-        Notifications
+        Messagerie
+    </a>
+
+    <a href="{{ route('premium') }}"
+       class="pb-3 border-b-2 {{ request()->routeIs('premium')
+            ? 'border-transparent text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 to-purple-600 font-bold'
+            : 'border-transparent text-gray-500 hover:text-gray-900 hover:border-indigo-300' }}">
+        <span class="{{ request()->routeIs('premium') ? '' : 'text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 to-purple-600 font-bold' }}">
+            Premium
+        </span>
     </a>
 </div>
 </div>

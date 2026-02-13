@@ -119,10 +119,15 @@
             </a>
 
             @if($dejaAmi)
-                <button type="button" disabled
-                        class="w-full inline-flex justify-center items-center py-3 px-4 rounded-2xl border border-slate-200 bg-slate-100 text-slate-400 text-sm font-bold cursor-not-allowed">
-                    Déjà ami
-                </button>
+                <form action="{{ route('conversations.start') }}" method="POST">
+                    @csrf
+                    <input type="hidden" name="resever_user_id" value="{{ $userId }}">
+
+                    <button
+                        class="w-full inline-flex justify-center items-center py-3 px-4 rounded-2xl border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 text-sm font-bold shadow-sm transition-all active:scale-95">
+                        Message
+                    </button>
+                </form>
             @else
                 @if(!$isSender)
                     <div class="grid grid-cols-2 gap-3">

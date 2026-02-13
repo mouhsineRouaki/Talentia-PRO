@@ -79,6 +79,24 @@ class RelationShipController extends Controller
         $sender_id = $request->input('sender_id');
         $reciever_id  = $request->input('reciever_id');
 
+        $sender = User::find($sender_id);
+        $reciever = User::find($reciever_id);
+
+        $amisS = $sender->amis ?? [];
+        $amisR = $reciever->amis ?? [];
+
+        if(!in_array($reciever_id , $amisS)){
+            $amisS[] = $reciever_id;
+            $sender->amis = $amisS;
+            $sender->save();
+        }
+
+        if(!in_array($sender_id , $amisR)){
+            $amisR[] = $sender_id;
+            $reciever->amis = $amisR;
+            $reciever->save();
+        }
+
         RelationShip::where('sender_id' , $sender_id)->where('status', 'PENDING')->where('reciever_id' , $reciever_id)->update(['status'=> 'ACCEPTED']);
         return  redirect()->route('friends.index');
     }

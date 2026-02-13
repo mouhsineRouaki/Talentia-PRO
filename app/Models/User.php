@@ -7,12 +7,15 @@ use App\UserRole;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Spatie\Permission\Traits\HasRoles;
 use App\Models\RelationShip;
+use Spatie\Permission\Models\Role;
+use Laravel\Cashier\Billable;
 
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, HasRoles, Billable;
 
     /**
      * The attributes that are mass assignable.
@@ -26,6 +29,8 @@ class User extends Authenticatable
         'role',
         'biographie' , 
         'image',
+        'password'
+
     ];
 
     /**
@@ -36,6 +41,10 @@ class User extends Authenticatable
     protected $hidden = [
         'password',
         'remember_token',
+    ];
+
+    protected $casts =[
+        'amis'=>'array',
     ];
 
     /**
@@ -68,34 +77,45 @@ class User extends Authenticatable
         };
     }
     public function recruteur(){
-        return $this->hasOne(\App\Models\Recruteur::class, 'user_id', 'id');
+        return $this->hasOne(Recruteur::class, 'user_id', 'id');
     }
     public function rechercheur(){
-        return $this->hasOne(\App\Models\Rechercheur::class, 'user_id', 'id');
+        return $this->hasOne(Rechercheur::class, 'user_id', 'id');
     }
     public function sentRelationships()
     {
-        return $this->hasMany(\App\Models\Relationship::class, 'sender_id', 'id');
+        return $this->hasMany(Relationship::class, 'sender_id', 'id');
     }
 
     public function receivedRelationships()
     {
-        return $this->hasMany(\App\Models\Relationship::class, 'reciever_id', 'id'); 
+        return $this->hasMany(Relationship::class, 'reciever_id', 'id'); 
     }
 
     public function friends()
     {
         return $this->belongsToMany(
-            \App\Models\User::class,
+            User::class,
             'relationships',
             'sender_id',
             'reciever_id'
         )->wherePivot('status', 'ACCEPTED');
     }
     public function notifications(){
-        return $this->hasMany(\App\Models\Notifications ,'user_id' , 'id');
+        return $this->hasMany(Notification ,'user_id' , 'id');
     }
 
 
-    
+     public function assigneRole(string $role) {
+        if (Role::where('name', $role)->exists()) {
+            $this->assignRole($role); 
+        } else {
+            $newRole = Role::create([
+                'name' => $role,
+                'guard_name' => 'web',
+            ]);
+            $this->assignRole($newRole);
+        }
+    }
+
 }
