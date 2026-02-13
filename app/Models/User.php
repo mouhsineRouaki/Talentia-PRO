@@ -113,6 +113,16 @@ class User extends Authenticatable
     }
 
 
+    public function currentPlan()
+    {
+        if (! $this->subscribed('default')) {
+            return null;
+        }
+
+        $priceId = $this->subscription('default')->stripe_price;
+        return \App\Models\Plan::where('stripe_price_id', $priceId)->value('name');
+    }
+
      public function assigneRole(string $role) {
         if (Role::where('name', $role)->exists()) {
             $this->assignRole($role); 
