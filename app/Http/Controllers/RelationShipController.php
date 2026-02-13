@@ -3,15 +3,17 @@
 namespace App\Http\Controllers;
 use App\Models\RelationShip;
 use App\Models\User;
+use App\Models\Notification;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\FriendShipStatu;
+use App\Events\NotificationCreated;
 
 class RelationShipController extends Controller
 {
     public function AjouteAmi(Request $request)
     {
-        $reciever_id = $request->input('reciever_id'); 
+        $reciever_id = $request->input('reciever_id');
 
         // verification si le même
         if ($reciever_id == auth()->id()) {
@@ -32,20 +34,33 @@ class RelationShipController extends Controller
             }
         }
 
-        RelationShip::firstOrCreate([
-            'sender_id' => auth()->id(),
-            'reciever_id' => $reciever_id,
-        ], [
-            'status' => 'PENDING'
-        ]);
+            $relationship = RelationShip::firstOrCreate(
+                [
+                    'sender_id' => auth()->id(),
+                    'reciever_id' => $reciever_id,
+                ],
+                [
+                    'status' => 'PENDING'
+                ]
+            );
 
         return redirect()->route('users.search')
             ->with('success', 'Demande d\'ami envoyée avec succès!');
+        $notification = Notification::create([
+            'user_id' => $reciever_id,
+            'relationships_id' => $relationship->id,
+            'contenu' => auth()->user()->prenom . ' ' . auth()->user()->nom . " vous a envoyé une demande d'amitié.",
+            'date_envoyer' => now(),
+        ]);
+
+        event(new NotificationCreated($notification));
+
+        return redirect()->route('users.search');
     }
     public function friendsPage(Request $request)
     {
         $me = $request->user();
-        $q  = trim((string) $request->query('q', ''));
+        $q = trim((string) $request->query('q', ''));
 
         $received = RelationShip::query()
             ->where('status', 'PENDING')
@@ -53,8 +68,8 @@ class RelationShipController extends Controller
             ->with('sender:id,nom,prenom,email,role,biographie,image')
             ->latest()
             ->get()
-            ->map(fn ($rel) => $rel->sender)
-            ->filter(); 
+            ->map(fn($rel) => $rel->sender)
+            ->filter();
 
         $sent = RelationShip::query()
             ->where('status', 'PENDING')
@@ -62,42 +77,43 @@ class RelationShipController extends Controller
             ->with('reciever:id,nom,prenom,email,role,biographie,image')
             ->latest()
             ->get()
-            ->map(fn ($rel) => $rel->reciever)
+            ->map(fn($rel) => $rel->reciever)
             ->filter();
 
         $friendIds = RelationShip::query()
             ->where('status', 'ACCEPTED')
             ->where(function ($x) use ($me) {
                 $x->where('sender_id', $me->id)
-                  ->orWhere('reciever_id', $me->id);
+                    ->orWhere('reciever_id', $me->id);
             })
             ->get()
-            ->map(fn ($rel) => $rel->sender_id == $me->id ? $rel->reciever_id : $rel->sender_id)
+            ->map(fn($rel) => $rel->sender_id == $me->id ? $rel->reciever_id : $rel->sender_id)
             ->unique()
             ->values()
             ->all();
 
         $friends = User::query()
-            ->select('id','nom','prenom','email','role','biographie','image')
+            ->select('id', 'nom', 'prenom', 'email', 'role', 'biographie', 'image')
             ->whereIn('id', $friendIds)
             ->orderBy('nom')
             ->get();
 
         if ($q !== '') {
-            $filterFn = fn ($u) =>
+            $filterFn = fn($u) =>
                 str_contains(mb_strtolower($u->nom ?? ''), mb_strtolower($q)) ||
                 str_contains(mb_strtolower($u->prenom ?? ''), mb_strtolower($q));
 
             $received = $received->filter($filterFn)->values();
-            $sent     = $sent->filter($filterFn)->values();
-            $friends  = $friends->filter($filterFn)->values();
+            $sent = $sent->filter($filterFn)->values();
+            $friends = $friends->filter($filterFn)->values();
         }
 
         return view('relationships.friends',compact('received', 'sent', 'friends', 'q'));
     }
-    public function accepter(Request $request){
+    public function accepter(Request $request)
+    {
         $sender_id = $request->input('sender_id');
-        $reciever_id  = $request->input('reciever_id');
+        $reciever_id = $request->input('reciever_id');
 
         $sender = User::find($sender_id);
         $reciever = User::find($reciever_id);
@@ -105,13 +121,13 @@ class RelationShipController extends Controller
         $amisS = $sender->amis ?? [];
         $amisR = $reciever->amis ?? [];
 
-        if(!in_array($reciever_id , $amisS)){
+        if (!in_array($reciever_id, $amisS)) {
             $amisS[] = $reciever_id;
             $sender->amis = $amisS;
             $sender->save();
         }
 
-        if(!in_array($sender_id , $amisR)){
+        if (!in_array($sender_id, $amisR)) {
             $amisR[] = $sender_id;
             $reciever->amis = $amisR;
             $reciever->save();
@@ -128,5 +144,16 @@ class RelationShipController extends Controller
         RelationShip::where('sender_id',$sender_id)->where('status','PENDING')->where('reciever_id',$reciever_id)->update(['status'=>'REFUSED']);
         return redirect()->route('friends.index')
             ->with('warning','Demande d\'ami refusée.');
+        RelationShip::where('sender_id', $sender_id)->where('status', 'PENDING')->where('reciever_id', $reciever_id)->update(['status' => 'ACCEPTED']);
+
+        $notification = Notification::create([
+            'user_id' => $sender_id,
+            'contenu' => auth()->user()->prenom . ' ' . auth()->user()->nom . " a accepté votre demande d'amitié.",
+            'date_envoyer' => now(),
+        ]);
+
+        event(new NotificationCreated($notification));
+
+        return redirect()->route('friends.index');
     }
 }

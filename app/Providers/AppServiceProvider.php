@@ -8,19 +8,8 @@ use App\Livewire\Offers;
 
 class AppServiceProvider extends ServiceProvider
 {
-    /**
-     * Register any application services.
-     */
-    public function register(): void
-    {
-        //
-    }
 
-    /**
-     * Bootstrap any application services.
-     */
-    public function boot(): void
-    {
+    public function boot(): void {
         Livewire::component('offers-rechercheurs', Offers::class);
     }
 }
