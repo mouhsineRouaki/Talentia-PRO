@@ -61,6 +61,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/conversations/{id}/messages', [ChatController::class, 'fetchMessage'])->name('chat.fetch');
     Route::post('/conversations/{id}/isVue', [ChatController::class, 'isVue'])->name('chat.isVue');
     Route::post('/conversations/{id}/typing', [ChatController::class, 'typing'])->name('chat.typing');
+    Route::post('/conversations/{id}/archive', [ChatController::class, 'archive'])->name('chat.archive');
+    Route::post('/conversations/{id}/unarchive', [ChatController::class, 'unarchive'])->name('chat.unarchive');
+    Route::delete('/conversations/{id}/delete', [ChatController::class, 'delete'])->name('chat.delete');
 
 
     Route::get('recruteur/offers', [JobOfferController::class, 'index'])->name('offers.index');
