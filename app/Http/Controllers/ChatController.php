@@ -15,8 +15,28 @@ class ChatController extends Controller
 {
     public function index(Request $request) {
         $userId = auth()->id();
-        $conversations = Conversation::where('user_one_id', $userId)
-            ->orWhere('user_two_id', $userId)
+        $type = $request->get('type', 'active'); // 'active' or 'archived'
+
+        $conversations = Conversation::where(function($query) use ($userId, $type) {
+                $query->where('user_one_id', $userId)
+                      ->whereNull('user_one_deleted_at');
+                
+                if ($type === 'archived') {
+                    $query->whereNotNull('user_one_archived_at');
+                } else {
+                    $query->whereNull('user_one_archived_at');
+                }
+            })
+            ->orWhere(function($query) use ($userId, $type) {
+                $query->where('user_two_id', $userId)
+                      ->whereNull('user_two_deleted_at');
+
+                if ($type === 'archived') {
+                    $query->whereNotNull('user_two_archived_at');
+                } else {
+                    $query->whereNull('user_two_archived_at');
+                }
+            })
             ->with(['userOne', 'userTow', 'lastMessage'])
             ->withCount([
                 'message as unread_count' => function ($query) use ($userId) {
@@ -33,7 +53,7 @@ class ChatController extends Controller
             ->get();
 
         $selected_user = null;
-        return view('chat.index', compact('conversations', 'selected_user'));
+        return view('chat.index', compact('conversations', 'selected_user', 'type'));
     }
 
     public function show(Request $request, $id){
@@ -191,5 +211,52 @@ class ChatController extends Controller
         broadcast(new \App\Events\UserTyping($conversation_id, $user))->toOthers();
 
         return response()->json(['status' => 'success']);
+    }
+
+    public function archive($id)
+    {
+        $userId = auth()->id();
+        $conversation = Conversation::findOrFail($id);
+
+        if ($conversation->user_one_id == $userId) {
+            $conversation->update(['user_one_archived_at' => now()]);
+        } elseif ($conversation->user_two_id == $userId) {
+            $conversation->update(['user_two_archived_at' => now()]);
+        }
+
+        return redirect()->route('chat.index')->with('success', 'Conversation archivée.');
+    }
+
+    public function delete($id)
+    {
+        $userId = auth()->id();
+        $conversation = Conversation::findOrFail($id);
+
+        if ($conversation->user_one_id == $userId) {
+            $conversation->update(['user_one_deleted_at' => now()]);
+        } elseif ($conversation->user_two_id == $userId) {
+            $conversation->update(['user_two_deleted_at' => now()]);
+        }
+
+        if ($conversation->user_one_deleted_at && $conversation->user_two_deleted_at) {
+            $conversation->message()->delete();
+            $conversation->delete();
+        }
+
+        return redirect()->route('chat.index')->with('success', 'Conversation supprimée.');
+    }
+
+    public function unarchive($id)
+    {
+        $userId = auth()->id();
+        $conversation = Conversation::findOrFail($id);
+
+        if ($conversation->user_one_id == $userId) {
+            $conversation->update(['user_one_archived_at' => null]);
+        } elseif ($conversation->user_two_id == $userId) {
+            $conversation->update(['user_two_archived_at' => null]);
+        }
+
+        return redirect()->route('chat.index')->with('success', 'Conversation désarchivée.');
     }
 }
