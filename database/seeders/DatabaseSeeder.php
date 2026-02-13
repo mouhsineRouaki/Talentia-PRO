@@ -20,6 +20,7 @@ class DatabaseSeeder extends Seeder
         $this->call(RolePermissionSeeder::class);
         $skills = Skill::factory()->count(10)->create(); 
 
+
         $users = User::factory()->count(20)->create();
 
         $recruteurs = $users->where('role', 'RECRUTEUR')->each(function ($user) {

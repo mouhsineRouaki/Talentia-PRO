@@ -34,7 +34,7 @@ class RegisteredUserController extends Controller
         $request->validate([
             'nom' => ['required', 'string', 'max:255'],
             'prenom' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
+            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
             'role' => ['required', 'string', 'max:255'],
             'image' => ['required', 'string', 'max:300'],
@@ -47,27 +47,13 @@ class RegisteredUserController extends Controller
             'role' => $request->role , 
             'image' => $request->image,
             'password' => Hash::make($request->password),
+            'role' => $request->role , 
+            'image' => $request->image 
         ]);
             if($user->role === "RECRUTEUR"){
                 $user->assignRole('recruteur');
-                Recruteur::create([
-                    'user_id' => $user->id,
-                    'entreprise' => 'Indépendant', // Default since input removed
-                    'site_web' => null,
-                    'telephone' => null,
-                    'ville' => null,
-                    'adresse' => null,
-                    'description_entreprise' => null,
-                ]);
             }else{
                 $user->assignRole('rechercheur');
-                Rechercheur::create([
-                    'user_id' => $user->id,
-                    'titre_profil' => $request->titre_profil ?? 'Nouveau Rechercheur',
-                    'specialite' => 'Généraliste', 
-                    'cv_path' => null,
-                    'ville' => null,
-                ]);
             }
 
         event(new Registered($user));
@@ -75,7 +61,6 @@ class RegisteredUserController extends Controller
         Auth::login($user);
 
         if ($user->hasRole('recruteur')) {
-
                 return redirect()->route('dashboard.recruteur');
             }
             return redirect()->route('dashboard.rechercheur');

@@ -6,13 +6,14 @@ use App\Models\Conversation;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Message;
+use App\Models\Notification;
 use App\Events\MessageSent;
+use App\Events\NotificationCreated;
 use Carbon\Carbon;
 
 class ChatController extends Controller
 {
-    public function index(Request $request)
-    {
+    public function index(Request $request) {
         $userId = auth()->id();
         $type = $request->get('type', 'active'); // 'active' or 'archived'
 
@@ -37,10 +38,12 @@ class ChatController extends Controller
                 }
             })
             ->with(['userOne', 'userTow', 'lastMessage'])
-            ->withCount(['message as unread_count' => function($query) use ($userId) {
-                $query->where('sender_id', '!=', $userId)
-                      ->whereNull('read_at');
-            }]) 
+            ->withCount([
+                'message as unread_count' => function ($query) use ($userId) {
+                    $query->where('sender_id', '!=', $userId)
+                        ->whereNull('read_at');
+                }
+            ])
             ->orderByDesc(
                 Message::select('created_at')
                     ->whereColumn('conversation_id', 'conversation.id')
@@ -53,16 +56,17 @@ class ChatController extends Controller
         return view('chat.index', compact('conversations', 'selected_user', 'type'));
     }
 
-    public function show(Request $request, $id)
-    {
+    public function show(Request $request, $id){
         $userId = auth()->id();
         $conversations = Conversation::where('user_one_id', $userId)
             ->orWhere('user_two_id', $userId)
             ->with(['userOne', 'userTow', 'lastMessage'])
-            ->withCount(['message as unread_count' => function($query) use ($userId) {
-                $query->where('sender_id', '!=', $userId)
-                      ->whereNull('read_at');
-            }])
+            ->withCount([
+                'message as unread_count' => function ($query) use ($userId) {
+                    $query->where('sender_id', '!=', $userId)
+                        ->whereNull('read_at');
+                }
+            ])
             ->orderByDesc(
                 Message::select('created_at')
                     ->whereColumn('conversation_id', 'conversation.id')
@@ -85,7 +89,8 @@ class ChatController extends Controller
     }
 
 
-    public function startConvertation(Request $request){
+    public function startConvertation(Request $request)
+    {
         $authId = auth()->id();
 
         $data = $request->validate([
@@ -94,8 +99,8 @@ class ChatController extends Controller
 
         $reserver_id = $data['resever_user_id'];
 
-        $userOne = min($reserver_id , $authId);
-        $userTow = max($reserver_id,$authId);
+        $userOne = min($reserver_id, $authId);
+        $userTow = max($reserver_id, $authId);
 
         $conversation = Conversation::firstOrCreate([
             'user_one_id' => $userOne,
@@ -110,8 +115,8 @@ class ChatController extends Controller
         $userId = auth()->id();
 
         $conversation = Conversation::whereIn('user_one_id', [$userId, $id])
-        ->whereIn('user_two_id', [$userId, $id])
-        ->first();
+            ->whereIn('user_two_id', [$userId, $id])
+            ->first();
 
         if (!$conversation) {
             return response()->json([]);
@@ -122,7 +127,8 @@ class ChatController extends Controller
         return response()->json($messages);
     }
 
-    public function sendMessage(Request $request){
+    public function sendMessage(Request $request)
+    {
         $request->validate([
             'attachment' => 'nullable|file|mimes:jpg,jpeg,png,pdf,doc',
             'message' => 'nullable|string',
@@ -137,7 +143,7 @@ class ChatController extends Controller
         }
         $atachmentPath = null;
         $atachementArray = null;
-        if($request->hasFile('attachment')){
+        if ($request->hasFile('attachment')) {
             $atachmentPath = $request->file('attachment')->store('attachments', 'public');
             $atachementArray = [
                 'filename' => $request->file('attachment')->getClientOriginalName(),
@@ -152,9 +158,17 @@ class ChatController extends Controller
             'conversation_id' => $conversation->id,
             'text' => $request->message,
             'attach' => $atachementArray,
-
         ]);
 
+        $receiverId = ($conversation->user_one_id == $senderId) ? $conversation->user_two_id : $conversation->user_one_id;
+
+        $notification = Notification::create([
+            'user_id' => $receiverId,
+            'contenu' => "Vous avez reçu un nouveau message de " . auth()->user()->prenom . ' ' . auth()->user()->nom,
+            'date_envoyer' => now(),
+        ]);
+
+        event(new NotificationCreated($notification));
         event(new MessageSent($message));
 
         return response()->json([
@@ -164,25 +178,27 @@ class ChatController extends Controller
     }
 
 
-    public function isVue($conversation_id){
+    public function isVue($conversation_id)
+    {
         Message::where('conversation_id', $conversation_id)
-        ->where('sender_id', '!=', auth()->id())
-        ->where('read_at', null)
-        ->update([
-            'read_at' => Carbon::now(),
-        ]);
+            ->where('sender_id', '!=', auth()->id())
+            ->where('read_at', null)
+            ->update([
+                'read_at' => Carbon::now(),
+            ]);
 
         return response()->json(['success' => true]);
     }
 
 
 
-    public function getMessageCount($conversation_id){
+    public function getMessageCount($conversation_id)
+    {
         $userId = auth()->id();
         $count = Message::where('conversation_id', $conversation_id)
-        ->where('sender_id', '!=', $userId)
-        ->where('read_at', null)
-        ->count();
+            ->where('sender_id', '!=', $userId)
+            ->where('read_at', null)
+            ->count();
 
         return response()->json(['count' => $count]);
     }

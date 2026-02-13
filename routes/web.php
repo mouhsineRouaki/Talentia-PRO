@@ -6,7 +6,10 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\JobOfferController;
 use App\Http\Controllers\ApplicationsController;
 use App\Http\Controllers\RechercheurProfileController;
+
 use App\Http\Controllers\PaymentController;
+
+use App\Http\Controllers\NotificationsController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -14,15 +17,15 @@ Route::get('/', function () {
 });
 
 
-Route::middleware(['auth', 'role:recruteur'])->group(function(){
+Route::middleware(['auth', 'role:recruteur'])->group(function () {
 
 });
 
-Route::middleware(['auth', 'role:rechercheur'])->group(function(){
-    
+Route::middleware(['auth', 'role:rechercheur'])->group(function () {
+
 });
 
-Route::middleware(['auth', 'permission:offer.create'])->group(function(){
+Route::middleware(['auth', 'permission:offer.create'])->group(function () {
 
 });
 
@@ -51,13 +54,21 @@ Route::middleware('auth')->group(function () {
     Route::get('/checkout/{plan}', [PaymentController::class, 'checkout'])->name('checkout');
     Route::get('/check/{name}', [PaymentController::class, 'check'])->name('check');
     
+    Route::get('/recruteur/dashboard', function () {
+        return view('recruteur/dashboard');
+    })->middleware(['auth', 'verified'])->name('dashboard.recruteur');
+    Route::get('/rechercheur/dashboard', function () {
+        return view('rechercheur/dashboard');
+    })->middleware(['auth', 'verified'])->name('dashboard.rechercheur');
+    Route::get('/search', [UserController::class, 'searchPage'])->name('users.search');
+    Route::get('/users/{id}', [UserController::class, 'detailsPage'])->name('users.show');
     Route::view('/relationships', 'relationships.index')->name('relationships.index');
-    Route::view('/notifications', 'notifications.index')->name('notifications.index');
+    Route::get('/notifications', [NotificationsController::class, 'index'])->name('notifications.index');
 
-    Route::get('/conversations', [ChatController::class , 'index'])->name('chat.index');
-    Route::get('/conversations/{id}', [ChatController::class , 'show'])->name('chat.show');
-    Route::post('/conversations/start', [ChatController::class , 'startConvertation'])->name('conversations.start');
-    Route::post('/conversations/send', [ChatController::class , 'sendMessage'])->name('chat.send');
+    Route::get('/conversations', [ChatController::class, 'index'])->name('chat.index');
+    Route::get('/conversations/{id}', [ChatController::class, 'show'])->name('chat.show');
+    Route::post('/conversations/start', [ChatController::class, 'startConvertation'])->name('conversations.start');
+    Route::post('/conversations/send', [ChatController::class, 'sendMessage'])->name('chat.send');
     Route::get('/conversations/{id}/messages', [ChatController::class, 'fetchMessage'])->name('chat.fetch');
     Route::post('/conversations/{id}/isVue', [ChatController::class, 'isVue'])->name('chat.isVue');
     Route::post('/conversations/{id}/typing', [ChatController::class, 'typing'])->name('chat.typing');
@@ -74,8 +85,10 @@ Route::middleware('auth')->group(function () {
     Route::patch('/applications/{application}/accept', [ApplicationsController::class, 'accept'])
         ->name('applications.accept');
     Route::get('/offers/{offer}/accepted', [JobOfferController::class, 'acceptedApplicants'])
-    ->name('offers.accepted');
-    Route::get('/offers', function () { return view('offers.rechercheur.index');})->name('offers.rechercheurs.index');
+        ->name('offers.accepted');
+    Route::get('/offers', function () {
+        return view('offers.rechercheur.index');
+    })->name('offers.rechercheurs.index');
     Route::get('/rechercheur/profile', [RechercheurProfileController::class, 'edit'])
         ->name('rechercheur.profile.edit');
 

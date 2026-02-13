@@ -27,7 +27,7 @@ class User extends Authenticatable
         'prenom',
         'email',
         'role',
-        'biographie' , 
+        'biographie',
         'image',
         'password'
 
@@ -43,8 +43,8 @@ class User extends Authenticatable
         'remember_token',
     ];
 
-    protected $casts =[
-        'amis'=>'array',
+    protected $casts = [
+        'amis' => 'array',
     ];
 
     /**
@@ -60,13 +60,14 @@ class User extends Authenticatable
             'role' => UserRole::class,
         ];
     }
-    public function hasAmi($idAmi): bool{
-    return RelationShip::where('sender_id', auth()->id())
+    public function hasAmi($idAmi): bool
+    {
+        return RelationShip::where('sender_id', auth()->id())
             ->where('reciever_id', $idAmi)
             ->exists()
-        || RelationShip::where('reciever_id', auth()->id())
-            ->where('sender_id', $idAmi)
-            ->exists();
+            || RelationShip::where('reciever_id', auth()->id())
+                ->where('sender_id', $idAmi)
+                ->exists();
     }
     public function asTyped(): User
     {
@@ -76,11 +77,14 @@ class User extends Authenticatable
             default => $this,
         };
     }
-    public function recruteur(){
-        return $this->hasOne(Recruteur::class, 'user_id', 'id');
+
+    public function recruteur()
+    {
+        return $this->hasOne(\App\Models\Recruteur::class, 'user_id', 'id');
     }
-    public function rechercheur(){
-        return $this->hasOne(Rechercheur::class, 'user_id', 'id');
+    public function rechercheur()
+    {
+        return $this->hasOne(\App\Models\Rechercheur::class, 'user_id', 'id');
     }
     public function sentRelationships()
     {
@@ -89,7 +93,7 @@ class User extends Authenticatable
 
     public function receivedRelationships()
     {
-        return $this->hasMany(Relationship::class, 'reciever_id', 'id'); 
+        return $this->hasMany(Relationship::class, 'reciever_id', 'id');
     }
 
     public function friends()
@@ -101,10 +105,10 @@ class User extends Authenticatable
             'reciever_id'
         )->wherePivot('status', 'ACCEPTED');
     }
-    public function notifications(){
-        return $this->hasMany(Notification ,'user_id' , 'id');
+    public function notifications()
+    {
+        return $this->hasMany(Notification::class, 'user_id', 'id');
     }
-
 
     public function currentPlan()
     {
