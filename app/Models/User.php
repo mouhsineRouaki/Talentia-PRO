@@ -77,10 +77,10 @@ class User extends Authenticatable
         };
     }
     public function recruteur(){
-        return $this->hasOne(\App\Models\Recruteur::class, 'user_id', 'id');
+        return $this->hasOne(Recruteur::class, 'user_id', 'id');
     }
     public function rechercheur(){
-        return $this->hasOne(\App\Models\Rechercheur::class, 'user_id', 'id');
+        return $this->hasOne(Rechercheur::class, 'user_id', 'id');
     }
     public function sentRelationships()
     {
@@ -95,7 +95,7 @@ class User extends Authenticatable
     public function friends()
     {
         return $this->belongsToMany(
-            \App\Models\User::class,
+            User::class,
             'relationships',
             'sender_id',
             'reciever_id'
@@ -107,11 +107,10 @@ class User extends Authenticatable
 
 
      public function assigneRole(string $role) {
-        if (\Spatie\Permission\Models\Role::where('name', $role)->exists()) {
-            $this->assignRole($role); // <-- now this works
+        if (Role::where('name', $role)->exists()) {
+            $this->assignRole($role); 
         } else {
-            // Optional: auto-create the role
-            $newRole = \Spatie\Permission\Models\Role::create([
+            $newRole = Role::create([
                 'name' => $role,
                 'guard_name' => 'web',
             ]);
