@@ -13,6 +13,25 @@ class RelationShipController extends Controller
     {
         $reciever_id = $request->input('reciever_id'); 
 
+        // verification si le même
+        if ($reciever_id == auth()->id()) {
+            return redirect()->route('users.search')
+                ->with('error', 'Vous ne pouvez pas vous ajouter comme ami');
+        }
+        // verification du damnade existe déjà
+        $existing = RelationShip::where('sender_id',auth()->id())
+            ->where('reciever_id', $reciever_id)
+            ->first();
+        if ($existing) {
+            if ($existing->status === 'PENDING') {
+                return redirect()->route('users.search')
+                    ->with('info', 'Demande d\'ami déjà envoyée.');
+            } elseif ($existing->status === 'ACCEPTED') {
+                return redirect()->route('users.search')
+                    ->with('info','Vous etes déjà amis avec cette personne');
+            }
+        }
+
         RelationShip::firstOrCreate([
             'sender_id' => auth()->id(),
             'reciever_id' => $reciever_id,
@@ -20,7 +39,8 @@ class RelationShipController extends Controller
             'status' => 'PENDING'
         ]);
 
-        return redirect()->route('users.search');
+        return redirect()->route('users.search')
+            ->with('success', 'Demande d\'ami envoyée avec succès!');
     }
     public function friendsPage(Request $request)
     {
@@ -73,7 +93,7 @@ class RelationShipController extends Controller
             $friends  = $friends->filter($filterFn)->values();
         }
 
-        return view('relationships.friends', compact('received', 'sent', 'friends', 'q'));
+        return view('relationships.friends',compact('received', 'sent', 'friends', 'q'));
     }
     public function accepter(Request $request){
         $sender_id = $request->input('sender_id');
@@ -98,13 +118,15 @@ class RelationShipController extends Controller
         }
 
         RelationShip::where('sender_id' , $sender_id)->where('status', 'PENDING')->where('reciever_id' , $reciever_id)->update(['status'=> 'ACCEPTED']);
-        return  redirect()->route('friends.index');
+        return redirect()->route('friends.index')
+            ->with('success', 'Demande d\'ami acceptée! Vous êtes maintenant amis.');
     }
     public function refuser(Request $request){
         $sender_id = $request->input('sender_id');
         $reciever_id  = $request->input('reciever_id');
 
-        RelationShip::where('sender_id' , $sender_id)->where('status', 'PENDING')->where('reciever_id' , $reciever_id)->update(['status'=> 'REFUSED']);
-        return  redirect()->route('friends.index');
+        RelationShip::where('sender_id',$sender_id)->where('status','PENDING')->where('reciever_id',$reciever_id)->update(['status'=>'REFUSED']);
+        return redirect()->route('friends.index')
+            ->with('warning','Demande d\'ami refusée.');
     }
 }
