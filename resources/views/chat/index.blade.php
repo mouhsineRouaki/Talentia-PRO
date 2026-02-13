@@ -6,11 +6,10 @@
             <div class="p-4 border-b border-gray-100">
                 <div class="flex items-center justify-between mb-4">
                     <h2 class="text-2xl font-bold text-gray-800">Messages</h2>
-                    <button class="p-2 rounded-full hover:bg-gray-100 text-gray-500 transition">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                        </svg>
-                    </button>
+                    <div class="flex space-x-2">
+                        <a href="{{ route('chat.index', ['type' => 'active']) }}" class="px-3 py-1 text-xs font-medium rounded-full {{ request('type', 'active') == 'active' ? 'bg-indigo-100 text-indigo-700' : 'text-gray-500 hover:bg-gray-100' }}">Discussions</a>
+                        <a href="{{ route('chat.index', ['type' => 'archived']) }}" class="px-3 py-1 text-xs font-medium rounded-full {{ request('type') == 'archived' ? 'bg-indigo-100 text-indigo-700' : 'text-gray-500 hover:bg-gray-100' }}">Archives</a>
+                    </div>
                 </div>
                 <div class="relative">
                     <span class="absolute inset-y-0 left-0 flex items-center pl-3">
@@ -38,6 +37,39 @@
                                       <span class="relative inline-flex rounded-full h-4 w-4 bg-red-500 border-2 border-white"></span>
                                     </span>
                                 @endif
+                            </div>
+                            
+                            <!-- Options Dropdown -->
+                            <div class="absolute top-2 right-2 z-20 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <button onclick="event.preventDefault(); event.stopPropagation(); toggleDropdown({{ $conv->id }})" class="p-1 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-500 shadow-sm">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4"viewBox="0 0 20 20" fill="currentColor">
+                                        <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
+                                    </svg>
+                                </button>
+                                <div id="dropdown-{{ $conv->id }}" class="hidden absolute right-0 mt-2 w-32 bg-white rounded-lg shadow-lg border border-gray-100 py-1 text-xs">
+                                    @if(request('type') == 'archived')
+                                        <form action="{{ route('chat.unarchive', $conv->id) }}" method="POST">
+                                            @csrf
+                                            <button type="submit" class="w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-50 hover:text-indigo-600 transition-colors">
+                                                Désarchiver
+                                            </button>
+                                        </form>
+                                    @else
+                                        <form action="{{ route('chat.archive', $conv->id) }}" method="POST">
+                                            @csrf
+                                            <button type="submit" class="w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-50 hover:text-indigo-600 transition-colors">
+                                                Archiver
+                                            </button>
+                                        </form>
+                                    @endif
+                                    <form action="{{ route('chat.delete', $conv->id) }}" method="POST">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="w-full text-left px-4 py-2 text-red-600 hover:bg-red-50 transition-colors" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette conversation ?')">
+                                            Supprimer
+                                        </button>
+                                    </form>
+                                </div>
                             </div>
                             <div class="flex-1 min-w-0 py-1">
                                 <div class="flex justify-between items-center mb-1">
@@ -605,6 +637,24 @@
             return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
         }
 
+    });
+    
+    function toggleDropdown(id) {
+        let dropdown = document.getElementById('dropdown-' + id);
+        
+        document.querySelectorAll('[id^="dropdown-"]').forEach(el => {
+            if (el.id !== 'dropdown-' + id) el.classList.add('hidden');
+        });
+
+        dropdown.classList.toggle('hidden');
+    }
+
+    document.addEventListener('click', function(event) {
+        if (!event.target.closest('.group')) {
+             document.querySelectorAll('[id^="dropdown-"]').forEach(el => {
+                el.classList.add('hidden');
+            });
+        }
     });
 </script>
 </x-app-layout>
