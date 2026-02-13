@@ -153,6 +153,16 @@
                             <div class="mt-2 inline-flex rounded-full bg-indigo-50 px-2.5 py-1 text-xs font-semibold text-indigo-700 ring-1 ring-indigo-200">
                                 {{ $u->role ?? 'RECHERCHEUR' }}
                             </div>
+                            @php $plan = $u->currentPlan(); @endphp
+                            @if($plan === 'Professional')
+                                <div class="mt-2 ml-1 inline-flex rounded-full bg-amber-50 px-2.5 py-1 text-xs font-semibold text-amber-700 ring-1 ring-amber-200">
+                                    PRO
+                                </div>
+                            @elseif($plan === 'Business')
+                                <div class="mt-2 ml-1 inline-flex rounded-full bg-slate-800 px-2.5 py-1 text-xs font-semibold text-white ring-slate-600">
+                                    BIZ
+                                </div>
+                            @endif
                         </div>
                     </div>
 

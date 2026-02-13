@@ -6,6 +6,9 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\JobOfferController;
 use App\Http\Controllers\ApplicationsController;
 use App\Http\Controllers\RechercheurProfileController;
+
+use App\Http\Controllers\PaymentController;
+
 use App\Http\Controllers\NotificationsController;
 use Illuminate\Support\Facades\Route;
 
@@ -41,6 +44,16 @@ Route::middleware('auth')->group(function () {
 
     Route::post('/relationships/accept', [RelationShipController::class, 'accepter'])->name('relationships.accept');
     Route::post('/relationships/refuse', [RelationShipController::class, 'refuser'])->name('relationships.refuse');
+    Route::get('/dashboard', function () {return view('recruteur/dashboard');})->middleware(['auth', 'verified'])->name('dashboard.recruteur');
+    Route::get('/dashboard', function () {return view('rechercheur/dashboard');})->middleware(['auth', 'verified'])->name('dashboard.rechercheur');
+    Route::get('/search',[UserController::class , 'searchPage'] )->name('users.search');
+    Route::get('/users/{id}', [UserController::class , 'detailsPage'])->name('users.show');
+    
+    Route::view('/premium', 'subscription.index')->name('premium');
+    Route::get('/payment/success', [PaymentController::class, 'success'])->name('payment.success');
+    Route::get('/checkout/{plan}', [PaymentController::class, 'checkout'])->name('checkout');
+    Route::get('/check/{name}', [PaymentController::class, 'check'])->name('check');
+    
     Route::get('/recruteur/dashboard', function () {
         return view('recruteur/dashboard');
     })->middleware(['auth', 'verified'])->name('dashboard.recruteur');
@@ -58,6 +71,10 @@ Route::middleware('auth')->group(function () {
     Route::post('/conversations/send', [ChatController::class, 'sendMessage'])->name('chat.send');
     Route::get('/conversations/{id}/messages', [ChatController::class, 'fetchMessage'])->name('chat.fetch');
     Route::post('/conversations/{id}/isVue', [ChatController::class, 'isVue'])->name('chat.isVue');
+    Route::post('/conversations/{id}/typing', [ChatController::class, 'typing'])->name('chat.typing');
+    Route::post('/conversations/{id}/archive', [ChatController::class, 'archive'])->name('chat.archive');
+    Route::post('/conversations/{id}/unarchive', [ChatController::class, 'unarchive'])->name('chat.unarchive');
+    Route::delete('/conversations/{id}/delete', [ChatController::class, 'delete'])->name('chat.delete');
 
 
     Route::get('recruteur/offers', [JobOfferController::class, 'index'])->name('offers.index');
@@ -103,4 +120,10 @@ Route::middleware('auth')->group(function () {
         ->name('rechercheur.skills.detach');
 });
 
-require __DIR__ . '/auth.php';
+    Route::get('/auth/github/redirect', [App\Http\Controllers\SocialAuthController::class, 'redirectToGithub'])->name('auth.github');
+    Route::get('/auth/github/callback', [App\Http\Controllers\SocialAuthController::class, 'handleGithubCallback'])->name('auth.github.callback');
+
+    Route::get('/auth/google/redirect', [App\Http\Controllers\GoogleLoginController::class, 'redirectToGoogle'])->name('google.redirect');  
+    Route::get('/auth/google/callback', [App\Http\Controllers\GoogleLoginController::class, 'handleGoogleCallback'])->name('google.callback');
+
+require __DIR__.'/auth.php';

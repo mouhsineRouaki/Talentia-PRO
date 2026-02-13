@@ -17,11 +17,9 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-       $this->call([
-           RolePermissionSeeder::class,
-       ]);
+        $this->call(RolePermissionSeeder::class);
+        $skills = Skill::factory()->count(10)->create(); 
 
-       $skills = Skill::factory()->count(10)->create(); 
 
         $users = User::factory()->count(20)->create();
 

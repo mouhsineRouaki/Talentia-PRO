@@ -10,11 +10,13 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
 use App\Models\RelationShip;
+use Spatie\Permission\Models\Role;
+use Laravel\Cashier\Billable;
 
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable, HasRoles;
+    use HasFactory, Notifiable, HasRoles, Billable;
 
     /**
      * The attributes that are mass assignable.
@@ -28,8 +30,9 @@ class User extends Authenticatable
         'role',
         'biographie',
         'image',
-        'password', //hnaaa
+        'password',
         'last_seen',
+
     ];
 
     /**
@@ -78,6 +81,7 @@ class User extends Authenticatable
             default => $this,
         };
     }
+
     public function recruteur()
     {
         return $this->hasOne(\App\Models\Recruteur::class, 'user_id', 'id');
@@ -99,7 +103,7 @@ class User extends Authenticatable
     public function friends()
     {
         return $this->belongsToMany(
-            \App\Models\User::class,
+            User::class,
             'relationships',
             'sender_id',
             'reciever_id'
@@ -115,4 +119,26 @@ class User extends Authenticatable
         return $this->last_seen && $this->last_seen->greaterThan(now()->subMinutes(5));
     }
     
+    public function currentPlan()
+    {
+        if (! $this->subscribed('default')) {
+            return null;
+        }
+
+        $priceId = $this->subscription('default')->stripe_price;
+        return \App\Models\Plan::where('stripe_price_id', $priceId)->value('name');
+    }
+
+     public function assigneRole(string $role) {
+        if (Role::where('name', $role)->exists()) {
+            $this->assignRole($role); 
+        } else {
+            $newRole = Role::create([
+                'name' => $role,
+                'guard_name' => 'web',
+            ]);
+            $this->assignRole($newRole);
+        }
+    }
+
 }

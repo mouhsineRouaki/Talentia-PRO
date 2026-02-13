@@ -39,6 +39,16 @@
                 </div>
                 <div class="mt-4 text-xs font-semibold text-slate-500">
                     Rôle: <span class="text-slate-900">{{ $roleValue }}</span>
+                    @php $plan = $u->currentPlan(); @endphp
+                    @if($plan === 'Professional')
+                        <span class="ml-2 inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-black uppercase tracking-wider ring-1 bg-amber-50 text-amber-700 ring-amber-200">
+                            PRO
+                        </span>
+                    @elseif($plan === 'Business')
+                        <span class="ml-2 inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-black uppercase tracking-wider ring-1 bg-slate-800 text-white ring-slate-600">
+                            BIZ
+                        </span>
+                    @endif
                 </div>
             </div>
 

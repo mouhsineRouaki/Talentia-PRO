@@ -38,40 +38,31 @@ class RegisteredUserController extends Controller
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
             'role' => ['required', 'string', 'max:255'],
             'image' => ['required', 'string', 'max:300'],
+            'titre_profil' => ['nullable', 'string', 'max:150'], // Validate titre_profil
         ]);
         $user = User::create([
             'nom' => $request->nom,
             'prenom' => $request->prenom,
             'email' => $request->email,
+            'role' => $request->role , 
+            'image' => $request->image,
             'password' => Hash::make($request->password),
-            'role' => $request->role,
-            'image' => $request->image
+            'role' => $request->role , 
+            'image' => $request->image 
         ]);
-        if ($user->role->value === 'RECRUTEUR') {
-            $user->assignRole('recruteur');
-            Recruteur::create([
-                'user_id' => $user->id,
-                'entreprise' => '—',
-                'telephone' => '—',
-                'ville' => '—',
-                'adresse' => '—',
-            ]);
-        } else {
-            $user->assignRole('rechercheur');
-            Rechercheur::create([
-                'user_id' => $user->id,
-                'titre_profil' => '—',
-                'specialite' => '—',
-            ]);
-        }
+            if($user->role === "RECRUTEUR"){
+                $user->assignRole('recruteur');
+            }else{
+                $user->assignRole('rechercheur');
+            }
 
         event(new Registered($user));
 
         Auth::login($user);
 
         if ($user->hasRole('recruteur')) {
-            return redirect()->route('dashboard.recruteur');
-        }
-        return redirect()->route('dashboard.rechercheur');
+                return redirect()->route('dashboard.recruteur');
+            }
+            return redirect()->route('dashboard.rechercheur');
     }
 }

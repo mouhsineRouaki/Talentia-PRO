@@ -7,10 +7,8 @@
                 <div class="flex items-center justify-between mb-4">
                     <h2 class="text-2xl font-bold text-gray-800">Messages</h2>
                     <button class="p-2 rounded-full hover:bg-gray-100 text-gray-500 transition">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
-                            stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                         </svg>
                     </button>
                 </div>
@@ -59,6 +57,39 @@
                                             class="relative inline-flex rounded-full h-4 w-4 bg-red-500 border-2 border-white"></span>
                                     </span>
                                 @endif
+                            </div>
+                            
+                            <!-- Options Dropdown -->
+                            <div class="absolute top-2 right-2 z-20 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <button onclick="event.preventDefault(); event.stopPropagation(); toggleDropdown({{ $conv->id }})" class="p-1 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-500 shadow-sm">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4"viewBox="0 0 20 20" fill="currentColor">
+                                        <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
+                                    </svg>
+                                </button>
+                                <div id="dropdown-{{ $conv->id }}" class="hidden absolute right-0 mt-2 w-32 bg-white rounded-lg shadow-lg border border-gray-100 py-1 text-xs">
+                                    @if(request('type') == 'archived')
+                                        <form action="{{ route('chat.unarchive', $conv->id) }}" method="POST">
+                                            @csrf
+                                            <button type="submit" class="w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-50 hover:text-indigo-600 transition-colors">
+                                                Désarchiver
+                                            </button>
+                                        </form>
+                                    @else
+                                        <form action="{{ route('chat.archive', $conv->id) }}" method="POST">
+                                            @csrf
+                                            <button type="submit" class="w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-50 hover:text-indigo-600 transition-colors">
+                                                Archiver
+                                            </button>
+                                        </form>
+                                    @endif
+                                    <form action="{{ route('chat.delete', $conv->id) }}" method="POST">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="w-full text-left px-4 py-2 text-red-600 hover:bg-red-50 transition-colors" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette conversation ?')">
+                                            Supprimer
+                                        </button>
+                                    </form>
+                                </div>
                             </div>
                             <div class="flex-1 min-w-0 py-1">
                                 <div class="flex justify-between items-center mb-1">
@@ -421,22 +452,22 @@
                 });
             }
 
-            if (conversationId) {
-                isVue(conversationId);
-            }
+        if (conversationId) {
+            isVue(conversationId);
+        }
 
             function addMessage(message) {
 
-                if (!messagesBox) return;
+            if (!messagesBox) return;
 
-                let isMe = message.sender_id == userId;
+            let isMe = message.sender_id == userId;
 
                 let myImage = "{{ auth()->user()->image ?? 'https://ui-avatars.com/api/?name=' . urlencode(auth()->user()->nom) . '&color=7F9CF5&background=EBF4FF' }}";
                 let otherImage = "{{ isset($selected_user) ? ($selected_user->image ?? 'https://ui-avatars.com/api/?name=' . urlencode($selected_user->nom) . '&color=7F9CF5&background=EBF4FF') : '' }}";
 
                 let img = isMe ? myImage : otherImage;
 
-                let html = "";
+            let html = "";
 
                 if (isMe) {
                     let attachmentHtml = '';
@@ -467,7 +498,7 @@
                         }
                     }
 
-                    html = `
+                html = `
                 <div class="flex items-end justify-end space-x-2">
                     <div class="flex flex-col space-y-1 max-w-lg items-end">
                         ${attachmentHtml}
@@ -509,7 +540,7 @@
                         }
                     }
 
-                    html = `
+                html = `
                 <div class="flex items-end space-x-2">
                     <img src="${img}" class="w-8 h-8 rounded-full object-cover shadow-sm mb-1">
                     <div class="flex flex-col space-y-1 max-w-lg">
@@ -521,7 +552,7 @@
                 `;
                 }
 
-                messagesBox.insertAdjacentHTML('beforeend', html);
+            messagesBox.insertAdjacentHTML('beforeend', html);
 
                 messagesBox.scrollTop = messagesBox.scrollHeight;
             }
@@ -665,38 +696,6 @@
                 return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
             }
 
-                    if (file.type.startsWith('image/')) {
-                        const reader = new FileReader();
-                        reader.onload = function(e) {
-                            imagePreview.src = e.target.result;
-                            imagePreview.classList.remove('hidden');
-                            fileIcon.classList.add('hidden');
-                        }
-                        reader.readAsDataURL(file);
-                    } else {
-                        imagePreview.classList.add('hidden');
-                        fileIcon.classList.remove('hidden');
-                    }
-                }
-            });
-
-            removeFileBtn.addEventListener('click', function() {
-                attachmentInput.value = '';
-                previewContainer.classList.add('hidden');
-            });
-        }
-
-        function formatBytes(bytes, decimals = 2) {
-            if (bytes === 0) return '0 Bytes';
-            const k = 1024;
-            const dm = decimals < 0 ? 0 : decimals;
-            const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
-            const i = Math.floor(Math.log(bytes) / Math.log(k));
-            return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
-        }
-
-    });
-</script>
         });
     </script>
 </x-app-layout>
