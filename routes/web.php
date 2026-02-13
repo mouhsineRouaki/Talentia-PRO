@@ -47,6 +47,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/users/{id}', [UserController::class , 'detailsPage'])->name('users.show');
     
     Route::view('/premium', 'subscription.index')->name('premium');
+    Route::get('/payment/success', [PaymentController::class, 'success'])->name('payment.success');
     Route::get('/checkout/{plan}', [PaymentController::class, 'checkout'])->name('checkout');
     Route::get('/check/{name}', [PaymentController::class, 'check'])->name('check');
     
