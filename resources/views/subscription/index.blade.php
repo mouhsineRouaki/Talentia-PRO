@@ -13,7 +13,35 @@
                 </p>
             </div>
 
-            <!-- Pricing Cards Container -->
+            @if(auth()->user()->subscribed('default'))
+                <div class="max-w-3xl mx-auto text-center bg-white rounded-3xl border border-indigo-100 shadow-xl p-12">
+                    <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <svg class="w-10 h-10 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                    </div>
+                    <h2 class="text-3xl font-bold text-slate-900 mb-4">You are already Premium!</h2>
+                    <p class="text-lg text-slate-600 mb-8">
+                        Your subscription is active. You have full access to all premium features.
+                    </p>
+                    <div class="bg-slate-50 rounded-xl p-6 mb-8 text-left max-w-md mx-auto">
+                         <div class="flex justify-between items-center mb-2">
+                            <span class="text-slate-500">Status</span>
+                            <span class="font-bold text-green-600 bg-green-50 px-3 py-1 rounded-full text-sm">Active</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-slate-500">Ends at</span>
+                            <span class="font-medium text-slate-900">
+                                {{ auth()->user()->subscription('default')->ends_at?->format('F j, Y') ?? 'Auto-renews' }}
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <a href="{{ route('dashboard.rechercheur') }}" class="inline-block py-3 px-8 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl transition-all shadow-lg hover:shadow-indigo-500/30">
+                        Go to Dashboard
+                    </a>
+                </div>
+            @else
             <div class="grid grid-cols-1 md:grid-cols-3 gap-10 max-w-7xl mx-auto">
                 
                 <!-- Free Plan -->
@@ -119,6 +147,7 @@
                     </a>
                 </div>
             </div>
+            @endif
 
             <!-- Trust Badge / Footer subtle -->
             <div class="mt-20 text-center border-t border-slate-100 pt-10">
