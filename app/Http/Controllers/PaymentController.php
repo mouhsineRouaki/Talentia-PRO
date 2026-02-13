@@ -62,7 +62,7 @@ class PaymentController extends Controller
             
             if ($session->subscription) {
                 Subscription::update($session->subscription, [
-                    'cancel_at' => now()->addDays(30)->timestamp,
+                    'cancel_at' => now()->addDays(8)->timestamp,
                 ]);
 
             }
