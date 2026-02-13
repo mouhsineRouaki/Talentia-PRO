@@ -47,8 +47,27 @@ class PaymentController extends Controller
             ->newSubscription('default', $planPrice)
             ->allowPromotionCodes()
             ->checkout([
-                'success_url' => route('premium'),
+                'success_url' => route('payment.success') . '?session_id={CHECKOUT_SESSION_ID}',
                 'cancel_url' => route('premium'),
             ]);
+    }
+
+    public function success(Request $request)
+    {
+        $sessionId = $request->get('session_id');
+
+        if ($sessionId) {
+            Stripe::setApiKey(config('cashier.secret'));
+            $session = Session::retrieve($sessionId);
+            
+            if ($session->subscription) {
+                Subscription::update($session->subscription, [
+                    'cancel_at' => now()->addDays(30)->timestamp,
+                ]);
+
+            }
+        }
+
+        return redirect()->route('premium')->with('success', 'Subscription activated and set to end in 30 days.');
     }
 }
