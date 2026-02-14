@@ -30,115 +30,105 @@
                         $isSelected = isset($conversation) && $conversation->id === $conv->id;
                     @endphp
                     <a href="{{ route('chat.show', $conv->id) }}" data-con-id="{{ $conv->id }}"
-                        class="block group relative px-4 py-4 cursor-pointer transition-all duration-200 hover:bg-indigo-50/50 {{ $isSelected ? 'bg-indigo-50 border-r-4 border-indigo-600' : 'bg-white border-r-4 border-transparent' }}">
-                        <div class="flex items-start space-x-4">
-                            <div class="relative">
-                                <img src="{{ $friend->image ?? 'https://i.pravatar.cc/150?u='.$friend->id }}" alt="{{ $friend->nom }}" class="w-12 h-12 rounded-full object-cover ring-2 ring-offset-2 {{ $isSelected ? 'ring-indigo-500' : 'ring-gray-100 group-hover:ring-indigo-200' }} transition-all">
+                        class="block group relative px-4 py-4 cursor-pointer transition-all duration-200 border-l-4 hover:bg-gray-50 {{ $isSelected ? 'bg-indigo-50 border-indigo-600' : 'bg-white border-transparent hover:border-gray-200' }}">
+                        
+                        <div class="flex items-center space-x-3">
+                            <!-- Avatar Column -->
+                            <div class="relative flex-shrink-0" data-ui="avatar-container">
+                                <img src="{{ $friend->image ?? 'https://i.pravatar.cc/150?u='.$friend->id }}" 
+                                     alt="{{ $friend->nom }}" 
+                                     class="w-12 h-12 rounded-full object-cover ring-2 ring-offset-1 {{ $isSelected ? 'ring-indigo-500' : 'ring-gray-100 group-hover:ring-gray-200' }} transition-all">
                                 
-                                <!-- Online/Offline Indicator -->
-                                @if(App\Helpers\UserHelper::isUserOnline($friend->id))
-                                    <span class="absolute bottom-0 right-0 flex h-3.5 w-3.5">
-                                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                                        <span class="relative inline-flex rounded-full h-3.5 w-3.5 bg-green-500 border-2 border-white"></span>
-                                    </span>
-                                @else
-                                    <span class="absolute bottom-0 right-0 h-3.5 w-3.5 rounded-full bg-gray-400 border-2 border-white"></span>
-                                @endif
+                                <!-- Online Status Dot -->
+                                <span class="absolute bottom-0 right-0 w-3 h-3 {{ App\Helpers\UserHelper::isUserOnline($friend->id) ? 'bg-green-500' : 'bg-gray-300' }} border-2 border-white rounded-full" data-user-status="{{ $friend->id }}"></span>
                                 
                                 @if($conv->unread_count > 0)
-                                    <span class="absolute -top-1 -right-1 flex h-4 w-4">
-                                        <span
-                                            class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                                        <span
-                                            class="relative inline-flex rounded-full h-4 w-4 bg-red-500 border-2 border-white"></span>
+                                    <span class="absolute -top-1 -right-1 flex h-4 w-4" data-ui="unread-badge">
+                                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                                        <span class="relative inline-flex rounded-full h-4 w-4 bg-red-500 text-white text-[9px] font-bold items-center justify-center border-2 border-white" data-ui="unread-count">{{ $conv->unread_count }}</span>
                                     </span>
                                 @endif
                             </div>
-                            
-                            <!-- Options Dropdown -->
-                            <div class="absolute top-2 right-2 z-20 opacity-0 group-hover:opacity-100 transition-opacity">
-                                <button onclick="event.preventDefault(); event.stopPropagation(); toggleDropdown({{ $conv->id }})" class="p-1 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-500 shadow-sm">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4"viewBox="0 0 20 20" fill="currentColor">
-                                        <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
-                                    </svg>
-                                </button>
-                                <div id="dropdown-{{ $conv->id }}" class="hidden absolute right-0 mt-2 w-32 bg-white rounded-lg shadow-lg border border-gray-100 py-1 text-xs">
-                                    @if(request('type') == 'archived')
-                                        <form action="{{ route('chat.unarchive', $conv->id) }}" method="POST">
-                                            @csrf
-                                            <button type="submit" class="w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-50 hover:text-indigo-600 transition-colors">
-                                                Désarchiver
-                                            </button>
-                                        </form>
-                                    @else
-                                        <form action="{{ route('chat.archive', $conv->id) }}" method="POST">
-                                            @csrf
-                                            <button type="submit" class="w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-50 hover:text-indigo-600 transition-colors">
-                                                Archiver
-                                            </button>
-                                        </form>
-                                    @endif
-                                    <form action="{{ route('chat.delete', $conv->id) }}" method="POST">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="w-full text-left px-4 py-2 text-red-600 hover:bg-red-50 transition-colors" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette conversation ?')">
-                                            Supprimer
-                                        </button>
-                                    </form>
-                                </div>
-                            </div>
-                            <div class="flex-1 min-w-0 py-1">
-                                <div class="flex justify-between items-center mb-1">
-                                    <h3
-                                        class="text-sm font-bold {{ $isSelected ? 'text-indigo-900' : 'text-gray-900' }} truncate group-hover:text-indigo-700 transition-colors">
+
+                            <!-- Content Column -->
+                            <div class="flex-1 min-w-0">
+                                <div class="flex justify-between items-baseline mb-1" data-ui="item-header">
+                                    <h3 class="text-sm font-semibold {{ $isSelected ? 'text-indigo-900' : 'text-gray-900' }} truncate group-hover:text-indigo-600 transition-colors">
                                         {{ $friend->nom }} {{  $friend->prenom }}
                                     </h3>
                                     @if($conv->lastMessage)
-                                        <span
-                                            class="text-[10px] text-gray-400">{{ $conv->lastMessage->created_at->format('H:i') }}</span>
+                                        <span class="text-[10px] text-gray-400 flex-shrink-0 ml-2" data-ui="time-display">{{ $conv->lastMessage->created_at->format('H:i') }}</span>
                                     @endif
                                 </div>
                                 
-                                <!-- Online/Offline Status Text -->
-                                <div class="flex items-center gap-1.5 mb-1">
-                                    @if(App\Helpers\UserHelper::isUserOnline($friend->id))
-                                        <span class="w-1.5 h-1.5 rounded-full bg-green-500"></span>
-                                        <span class="text-[10px] font-medium text-green-600">En ligne</span>
-                                    @else
-                                        <span class="w-1.5 h-1.5 rounded-full bg-gray-400"></span>
-                                        <span class="text-[10px] font-medium text-gray-500">
-                                            {{ App\Helpers\UserHelper::getLastSeen($friend) }}
-                                        </span>
-                                    @endif
-                                </div>
-                                
-                                <div class="text-sm {{ $isSelected ? 'text-indigo-600' : 'text-gray-500' }} font-medium truncate">
-                                    <div class="flex justify-between items-center w-full">
-                                        <span class="truncate block opacity-90">
-                                            @if($conv->lastMessage)
-                                                @if($conv->lastMessage->sender_id == auth()->id())
-                                                    <span class="text-xs text-indigo-400 mr-1">Vous:</span>
-                                                @endif
-                                                @if($conv->lastMessage->text)
-                                                    {{ Str::limit($conv->lastMessage->text, 25) }}
-                                                @elseif(!empty($conv->lastMessage->attach))
-                                                    <span class="flex items-center text-xs"><svg class="w-3 h-3 mr-1" fill="none"
-                                                            viewBox="0 0 24 24" stroke="currentColor">
-                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                                d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
-                                                        </svg> Pièce jointe</span>
-                                                @endif
-                                            @else
-                                                <span class="text-indigo-400 italic">Démarrer une discussion</span>
+                                <div class="flex items-center justify-between">
+                                    <p class="text-xs {{ $isSelected ? 'text-indigo-700 font-medium' : 'text-gray-500' }} truncate pr-2 opacity-90" data-ui="message-preview">
+                                        @if($conv->lastMessage)
+                                            @if($conv->lastMessage->sender_id == auth()->id())
+                                                <span class="text-indigo-400 mr-1">Vous:</span>
                                             @endif
-                                        </span>
-                                        @if($conv->unread_count > 0)
-                                            <span
-                                                class="unread-badge bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-lg shadow-red-500/30 ml-2 flex-shrink-0 animate-pulse">{{ $conv->unread_count }}</span>
+                                            @if($conv->lastMessage->text)
+                                                {{ Str::limit($conv->lastMessage->text, 30) }}
+                                            @elseif(!empty($conv->lastMessage->attach))
+                                                <span class="flex items-center"><svg class="w-3 h-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" /></svg> Fichier</span>
+                                            @endif
+                                        @else
+                                            <span class="italic opacity-70">Nouveau chat</span>
                                         @endif
-                                    </div>
+                                    </p>
+                                    
+                                     <!-- Options Dropdown Trigger (Hidden by default, shown on hover) -->
+                                    <button onclick="event.preventDefault(); event.stopPropagation(); toggleDropdown({{ $conv->id }})" class="p-1 rounded-full text-gray-400 hover:bg-gray-200 hover:text-gray-600 transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                                            <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
+                                        </svg>
+                                    </button>
+                                </div>
+                                            @endif
+                                            @if($conv->lastMessage->text)
+                                                {{ Str::limit($conv->lastMessage->text, 30) }}
+                                            @elseif(!empty($conv->lastMessage->attach))
+                                                <span class="flex items-center"><svg class="w-3 h-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" /></svg> Fichier</span>
+                                            @endif
+                                        @else
+                                            <span class="italic opacity-70">Nouveau chat</span>
+                                        @endif
+                                    </p>
+                                    
+                                     <!-- Options Dropdown Trigger (Hidden by default, shown on hover) -->
+                                    <button onclick="event.preventDefault(); event.stopPropagation(); toggleDropdown({{ $conv->id }})" class="p-1 rounded-full text-gray-400 hover:bg-gray-200 hover:text-gray-600 transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                                            <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
+                                        </svg>
+                                    </button>
                                 </div>
                             </div>
+                        </div>
+
+                         <!-- Dropdown Menu -->
+                         <div id="dropdown-{{ $conv->id }}" class="hidden absolute right-4 top-10 z-30 w-36 bg-white rounded-lg shadow-xl border border-gray-100 py-1 text-xs origin-top-right transform transition-all duration-200">
+                            @if(request('type') == 'archived')
+                                <form action="{{ route('chat.unarchive', $conv->id) }}" method="POST">
+                                    @csrf
+                                    <button type="submit" class="w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-50 hover:text-indigo-600 transition-colors">
+                                        Désarchiver
+                                    </button>
+                                </form>
+                            @else
+                                <form action="{{ route('chat.archive', $conv->id) }}" method="POST">
+                                    @csrf
+                                    <button type="submit" class="w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-50 hover:text-indigo-600 transition-colors">
+                                        Archiver
+                                    </button>
+                                </form>
+                            @endif
+                            <form action="{{ route('chat.delete', $conv->id) }}" method="POST">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="w-full text-left px-4 py-2 text-red-600 hover:bg-red-50 transition-colors" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette conversation ?')">
+                                    Supprimer
+                                </button>
+                            </form>
                         </div>
                     </a>
                 @empty
@@ -155,69 +145,51 @@
 
         <div class="flex-1 flex flex-col bg-white">
             @if($selected_user)
-                <div class="px-6 py-3 border-b border-gray-200 bg-white shadow-sm z-10 flex items-center justify-between">
+                <div class="px-6 py-3 border-b border-gray-100 bg-white/80 backdrop-blur-sm sticky top-0 z-10 flex items-center justify-between">
                     <div class="flex items-center space-x-4">
-                         <div class="relative">
-                            <img src="{{$selected_user->image }}" alt="{{ $selected_user->prenom  }}" class="w-10 h-10 rounded-full object-cover shadow-sm">
-                            
-                            <!-- detecter en ligne et hors lign -->
-                            @if(App\Helpers\UserHelper::isUserOnline($selected_user->id))
-                                <span class="absolute bottom-0 right-0 flex h-3 w-3">
-                                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                                    <span class="relative inline-flex rounded-full h-3 w-3 bg-green-500 border-2 border-white"></span>
-                                </span>
-                            @else
-                                <span class="absolute bottom-0 right-0 w-3 h-3 bg-gray-400 border-2 border-white rounded-full"></span>
-                            @endif
-                         </div>
-                        <div>
-                            <h3 class="text-lg font-bold text-gray-900">
+                        <div class="relative">
+                            <img src="{{$selected_user->image }}" alt="{{ $selected_user->prenom  }}" class="w-10 h-10 rounded-full object-cover shadow-sm ring-1 ring-gray-100">
+                             <!-- Online Status -->
+                            <span class="absolute bottom-0 right-0 block h-2.5 w-2.5 rounded-full {{ App\Helpers\UserHelper::isUserOnline($selected_user->id) ? 'bg-green-500' : 'bg-gray-300' }} ring-2 ring-white" data-user-status="{{ $selected_user->id }}"></span>
+                        </div>
+                        
+                        <div class="flex flex-col">
+                            <h3 class="text-base font-bold text-gray-900 leading-tight">
                                 {{  $selected_user->prenom . ' ' . $selected_user->nom  }}
                             </h3>
                             
-                            <!-- l'affichage-->
                             @if(App\Helpers\UserHelper::isUserOnline($selected_user->id))
-                                <div class="flex items-center space-x-1">
-                                    <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
-                                    <p class="text-xs text-green-600 font-medium">En ligne</p>
-                                </div>
+                                <p class="text-xs text-green-600 font-medium" id="online-status">En ligne</p>
                             @else
-                                <div class="flex items-center space-x-1">
-                                    <span class="w-2 h-2 rounded-full bg-gray-400"></span>
-                                    <p class="text-xs text-gray-500 font-medium">
-                                        {{ App\Helpers\UserHelper::getLastSeen($selected_user) }}
-                                    </p>
-                                </div>
+                                <p class="text-xs text-gray-500" id="online-status">
+                                    {{ App\Helpers\UserHelper::getLastSeen($selected_user) }}
+                                </p>
                             @endif
+                             <p id="typing-indicator" class="text-xs text-indigo-500 font-medium hidden italic">est en train d'écrire...</p>
                         </div>
                     </div>
-                    <div class="flex items-center space-x-3">
-                        <button class="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-full transition">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
-                                stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                    
+                    <div class="flex items-center space-x-2">
+                        <button class="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-full transition-colors" title="Appel vocal">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                             </svg>
                         </button>
-                        <button class="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-full transition">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
-                                stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M15 10l4.553-2.276A1 1 0 0121 8.82v6.36a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                        <button class="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-full transition-colors" title="Appel vidéo">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.82v6.36a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
                             </svg>
                         </button>
-                        <div class="w-px h-6 bg-gray-200 mx-2"></div>
-                        <button class="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
-                                stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
+                        <div class="w-px h-6 bg-gray-200 mx-1"></div>
+                        <button class="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors" title="Plus d'options">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
                             </svg>
                         </button>
                     </div>
                 </div>
 
-                <div class="flex-1 overflow-y-auto p-6 space-y-6 bg-slate-50 relative">
+                <div id="messages-container" class="flex-1 overflow-y-auto p-6 space-y-6 bg-slate-50 relative">
                     <div class="flex justify-center">
                         <span
                             class="px-4 py-1 text-xs font-semibold text-gray-500 bg-gray-200 rounded-full shadow-sm">Aujourd'hui</span>
@@ -424,7 +396,7 @@
             let conversationId = {{ isset($conversation) ? $conversation->id : 'null' }};
 
             let form = document.getElementById('chat-form');
-            let messagesBox = document.querySelector('.flex-1.overflow-y-auto.p-6.space-y-6');
+            let messagesBox = document.getElementById('messages-container');
 
             if (messagesBox) {
                 messagesBox.scrollTop = messagesBox.scrollHeight;
@@ -641,55 +613,118 @@
                 });
             }
 
-                if (indicator && indicator.parentNode === messagesBox) {
-                    indicator.insertAdjacentHTML('beforebegin', html);
-                } else {
-                    messagesBox.insertAdjacentHTML('beforeend', html);
+            function initMessaging() {
+                if (!window.Echo) {
+                    setTimeout(initMessaging, 500);
+                    return;
                 }
-
+                
                 @foreach($conversations as $conv)
-                    Echo.private("conversation.{{ $conv->id }}")
+                    window.Echo.private("conversation.{{ $conv->id }}")
                         .listen(".message.sent", function (e) {
 
                             if (e.message.sender_id != userId) {
-
-                                if (conversationId && conversationId == {{ $conv->id }}) {
+                                if (conversationId && conversationId == {{ $conv->id }} ) {
                                     addMessage(e.message);
                                     isVue(conversationId);
                                 }
                                 else {
+                                    // Robust selection using data-con-id
                                     let convItem = document.querySelector(`a[data-con-id="{{ $conv->id }}"]`);
-
+                                    
                                     if (convItem) {
-                                        let previewText = e.message.text ? e.message.text.substring(0, 20) + (e.message.text.length > 20 ? '...' : '') : '📎 Pièce jointe';
 
-                                        let time = new Date(e.message.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-
-                                        let previewSpan = convItem.querySelector('.truncate.block.opacity-90');
-                                        if (previewSpan) {
-                                            previewSpan.innerHTML = previewText;
+                                        
+                                        // 1. Update Preview Text
+                                        let previewText = e.message.text ? 
+                                            (e.message.text.length > 25 ? e.message.text.substring(0, 25) + '..' : e.message.text) : 
+                                            '📎 Fichier';
+                                            
+                                        let previewParagraph = convItem.querySelector('[data-ui="message-preview"]');
+                                        if (previewParagraph) {
+                                            previewParagraph.innerHTML = previewText;
+                                        } else {
+                                            console.warn('Could not find message-preview element');
                                         }
-                                        let timeSpan = convItem.querySelector('.flex.justify-between.items-center.mb-1 span.text-\\[10px\\]');
+
+                                        // 2. Update Time
+                                        let time = new Date(e.message.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                                        let timeSpan = convItem.querySelector('[data-ui="time-display"]');
+                                        
                                         if (timeSpan) {
                                             timeSpan.textContent = time;
-                                        }
-                                        let badge = convItem.querySelector('.unread-badge');
-
-                                        if (badge) {
-                                            let count = parseInt(badge.textContent) || 0;
-                                            badge.textContent = count + 1;
                                         } else {
-                                            let badgeParent = convItem.querySelector('.flex.justify-between.items-center.w-full');
-
-                                            if (badgeParent) {
-                                                badgeParent.insertAdjacentHTML('beforeend', `<span class="unread-badge bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-lg shadow-red-500/30 ml-2 flex-shrink-0 animate-pulse">1</span>`);
+                                            // If time didn't exist (e.g. was "Nouveau chat"), insert it
+                                            let headerContainer = convItem.querySelector('[data-ui="item-header"]');
+                                            if (headerContainer) {
+                                                headerContainer.insertAdjacentHTML('beforeend', `<span class="text-[10px] text-gray-400 flex-shrink-0 ml-2" data-ui="time-display">${time}</span>`);
+                                            } else {
+                                                console.warn('Could not find item-header to append time');
                                             }
                                         }
+
+                                        // 3. Update Unread Badge
+                                        let avatarContainer = convItem.querySelector('[data-ui="avatar-container"]');
+                                        if (avatarContainer) {
+                                            let existingBadge = avatarContainer.querySelector('[data-ui="unread-badge"]');
+                                            
+                                            if (existingBadge) {
+                                                let countSpan = existingBadge.querySelector('[data-ui="unread-count"]');
+                                                if (countSpan) {
+                                                    let count = parseInt(countSpan.textContent) || 0;
+                                                    countSpan.textContent = count + 1;
+                                                }
+                                            } else {
+                                                // Create new badge
+                                                avatarContainer.insertAdjacentHTML('beforeend', `
+                                                    <span class="absolute -top-1 -right-1 flex h-4 w-4" data-ui="unread-badge">
+                                                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                                                        <span class="relative inline-flex rounded-full h-4 w-4 bg-red-500 text-white text-[9px] font-bold items-center justify-center border-2 border-white" data-ui="unread-count">1</span>
+                                                    </span>
+                                                `);
+                                            }
+                                        } else {
+                                            console.warn('Could not find avatar-container');
+                                        }
+                                    } else {
+                                        console.warn('Could not find sidebar item for conversation:', {{ $conv->id }});
                                     }
                                 }
                             }
                         });
+
+                    window.Echo.private("conversation.{{ $conv->id }}")
+                        .listen(".user.typing", function (e) {
+                             if (e.user.id != userId && conversationId == {{ $conv->id }}) {
+                                showTypingIndicator();
+                             }
+                        });
                 @endforeach
+                
+                // Presence Channel for Online Status
+                window.Echo.join('online')
+                    .here((users) => {
+                        users.forEach(user => updateUserStatus(user.id, true));
+                    })
+                    .joining((user) => {
+                        updateUserStatus(user.id, true);
+                    })
+                    .leaving((user) => {
+                        updateUserStatus(user.id, false);
+                    });
+        }
+
+        function updateUserStatus(userId, isOnline) {
+            const statusDots = document.querySelectorAll(`[data-user-status="${userId}"]`);
+            statusDots.forEach(dot => {
+                if (isOnline) {
+                    dot.classList.remove('bg-gray-300');
+                    dot.classList.add('bg-green-500');
+                } else {
+                    dot.classList.remove('bg-green-500');
+                    dot.classList.add('bg-gray-300');
+                }
+            });
         }
 
             initMessaging();
@@ -738,27 +773,74 @@
                 const dm = decimals < 0 ? 0 : decimals;
                 const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
                 const i = Math.floor(Math.log(bytes) / Math.log(k));
-                return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+            }
+
+            // Typing Indicator Logic
+            let typingTimer;
+            const typingIndicator = document.getElementById('typing-indicator');
+            const onlineStatus = document.getElementById('online-status');
+            
+            function showTypingIndicator() {
+                if(typingIndicator && onlineStatus) {
+                    typingIndicator.classList.remove('hidden');
+                    onlineStatus.classList.add('hidden');
+                    
+                    clearTimeout(typingTimer);
+                    typingTimer = setTimeout(() => {
+                        typingIndicator.classList.add('hidden');
+                        onlineStatus.classList.remove('hidden');
+                    }, 3000);
+                }
+            }
+
+            // Trigger typing event
+            const messageInput = document.getElementById('message-input');
+            let isTyping = false;
+            let lastTypingTime = 0;
+
+            if (messageInput && conversationId) {
+                messageInput.addEventListener('keydown', function() {
+                    const now = Date.now();
+                    if (!isTyping || now - lastTypingTime > 2000) {
+                        isTyping = true;
+                        lastTypingTime = now;
+                        
+                        fetch(`/conversations/${conversationId}/typing`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                            },
+                        });
+
+                        setTimeout(() => isTyping = false, 2000);
+                    }
+                });
             }
 
         });
 
     function toggleDropdown(id) {
-        let dropdown = document.getElementById('dropdown-' + id);
+        const dropdown = document.getElementById(`dropdown-${id}`);
+        const allDropdowns = document.querySelectorAll('[id^="dropdown-"]');
         
-        document.querySelectorAll('[id^="dropdown-"]').forEach(el => {
-            if (el.id !== 'dropdown-' + id) el.classList.add('hidden');
+        allDropdowns.forEach(d => {
+            if (d.id !== `dropdown-${id}`) {
+                d.classList.add('hidden');
+            }
         });
 
-        if (dropdown) dropdown.classList.toggle('hidden');
+        if (dropdown) {
+            dropdown.classList.toggle('hidden');
+        }
     }
 
-    document.addEventListener('click', function(event) {
+    window.onclick = function(event) {
         if (!event.target.closest('.group')) {
-             document.querySelectorAll('[id^="dropdown-"]').forEach(el => {
-                el.classList.add('hidden');
-            });
+             const allDropdowns = document.querySelectorAll('[id^="dropdown-"]');
+             allDropdowns.forEach(d => d.classList.add('hidden'));
         }
-    });
+    }
     </script>
 </x-app-layout>

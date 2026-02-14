@@ -107,11 +107,9 @@
                                 window.Echo.private(`user.${userId}`)
                                     .listen('.notification.created', (e) => {
                                         console.log('Notification received:', e);
-                                        // If it's a message notification, we might already have a more detailed toast from .message.sent
-                                        // But for now, let's just make sure it shows if it's not a message, or handle it simply.
+                                        // If it's a message notification, suppress it because .message.sent handles it with better detail
                                         if (e.notification.contenu.includes('message')) {
-                                             // If we are on the chat page, don't show toast for messages
-                                             if (window.location.pathname.includes('/conversations/')) return;
+                                             return;
                                         }
 
                                         this.addToast({
@@ -119,8 +117,7 @@
                                             message: e.notification.contenu,
                                             image: null,
                                             url: e.notification.type === 'offer' ? '/offers' : 
-                                                 (e.notification.type === 'friend_request' ? '/friends' : 
-                                                 (e.notification.contenu.includes('message') ? '/conversations' : '/notifications'))
+                                                 (e.notification.type === 'friend_request' ? '/friends' : '/notifications')
                                         });
                                     })
                                     .listen('.message.sent', (e) => {

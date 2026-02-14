@@ -59,6 +59,11 @@
         <span class="{{ request()->routeIs('premium') ? '' : 'text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 to-purple-600 font-bold' }}">
             Premium
         </span>
+        @if(auth()->user()->subscribed('default'))
+            <span class="ml-1 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-indigo-100 text-indigo-800">
+                PRO
+            </span>
+        @endif
     </a>
 </div>
 </div>
