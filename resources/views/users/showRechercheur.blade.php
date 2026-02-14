@@ -144,6 +144,11 @@
                                     {{ $r->ville }}
                                 </span>
                             @endif
+                            @if($user->subscribed('default'))
+                                <span class="inline-flex items-center rounded-full px-3 py-1 text-[11px] font-black uppercase tracking-wider ring-1 bg-indigo-100 text-indigo-800 ring-indigo-200">
+                                    PRO
+                                </span>
+                            @endif
                         </div>
                     </div>
 

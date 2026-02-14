@@ -4,15 +4,15 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Plan;
+use Stripe\Stripe;
+use Stripe\Checkout\Session;
+use Stripe\Subscription;
 
 
 class PaymentController extends Controller
 {
     public function checkout($plan)
-    {
-        // For now, we'll just mock the plan details based on the slug.
-        // In a real app, you might look this up from a config or database.
-        
+    {        
         $plans = [
             'free' => [
                 'name' => 'Free Starter',
@@ -61,10 +61,22 @@ class PaymentController extends Controller
             $session = Session::retrieve($sessionId);
             
             if ($session->subscription) {
-                Subscription::update($session->subscription, [
-                    'cancel_at' => now()->addDays(8)->timestamp,
-                ]);
+                $stripeSubscription = Subscription::retrieve($session->subscription);
+                $request->user()->subscriptions()->updateOrCreate(
+                    ['stripe_id' => $stripeSubscription->id],
+                    [
+                        'type' => 'default',
+                        'stripe_status' => $stripeSubscription->status,
+                        'stripe_price' => $stripeSubscription->items->data[0]->price->id,
+                        'quantity' => 1,
+                        'ends_at' => null,
+                        'trial_ends_at' => null,
+                    ]
+                );
 
+                Subscription::update($session->subscription, [
+                    'cancel_at' => now()->addDays(30)->timestamp,
+                ]);
             }
         }
 
