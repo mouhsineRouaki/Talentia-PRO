@@ -1,85 +1,111 @@
 <x-app-layout>
-    <div class="h-[calc(100vh-65px)] overflow-hidden bg-gray-100 flex" data-user-id="{{ auth()->id() }}">
+    <div class="h-[calc(100vh-65px)] overflow-hidden bg-slate-50 flex" data-user-id="{{ auth()->id() }}">
+        <!-- Background Elements (Subtle) -->
+        <div class="fixed inset-0 pointer-events-none z-0">
+            <div class="absolute top-20 left-10 w-96 h-96 bg-indigo-200/20 rounded-full blur-3xl opacity-50 mix-blend-multiply"></div>
+            <div class="absolute bottom-10 right-10 w-96 h-96 bg-purple-200/20 rounded-full blur-3xl opacity-50 mix-blend-multiply"></div>
+        </div>
+
         <!-- Sidebar -->
-        <div class="w-1/3 bg-white border-r border-gray-200 flex flex-col">
+        <div class="w-full md:w-[380px] bg-white/80 backdrop-blur-xl border-r border-slate-200/60 flex flex-col z-10 relative shadow-[4px_0_24px_rgba(0,0,0,0.02)]">
             <!-- Header & Search -->
-            <div class="p-4 border-b border-gray-100">
-                <div class="flex items-center justify-between mb-4">
-                    <h2 class="text-2xl font-bold text-gray-800">Messages</h2>
-                    <div class="flex space-x-2">
-                        <a href="{{ route('chat.index', ['type' => 'active']) }}" class="px-3 py-1 text-xs font-medium rounded-full {{ request('type', 'active') == 'active' ? 'bg-indigo-100 text-indigo-700' : 'text-gray-500 hover:bg-gray-100' }}">Discussions</a>
-                        <a href="{{ route('chat.index', ['type' => 'archived']) }}" class="px-3 py-1 text-xs font-medium rounded-full {{ request('type') == 'archived' ? 'bg-indigo-100 text-indigo-700' : 'text-gray-500 hover:bg-gray-100' }}">Archives</a>
+            <div class="p-6 border-b border-slate-100">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-2xl font-black text-slate-900 tracking-tight">Messages</h2>
+                    <div class="flex gap-2">
+                        <a href="{{ route('chat.index', ['type' => 'active']) }}" class="px-4 py-2 text-xs font-bold rounded-xl transition-all {{ request('type', 'active') == 'active' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-200' : 'text-slate-500 hover:bg-slate-100' }}">Discussions</a>
+                        <a href="{{ route('chat.index', ['type' => 'archived']) }}" class="px-4 py-2 text-xs font-bold rounded-xl transition-all {{ request('type') == 'archived' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-200' : 'text-slate-500 hover:bg-slate-100' }}">Archives</a>
                     </div>
                 </div>
-                <div class="relative">
-                    <span class="absolute inset-y-0 left-0 flex items-center pl-3">
-                        <svg class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                        </svg>
+                    </div>
+                </div>
+                
+                <form action="{{ route('chat.index') }}" method="GET" class="relative group">
+                    <span class="absolute inset-y-0 left-0 flex items-center pl-4 transition-colors group-focus-within:text-indigo-500 text-slate-400">
+                        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
                     </span>
-                    <input type="text" placeholder="Rechercher..."
-                        class="w-full py-2 pl-10 pr-4 bg-gray-50 border-none rounded-2xl text-sm focus:ring-2 focus:ring-indigo-500 focus:bg-white transition-all placeholder-gray-400 text-gray-700">
+                    <input type="text" name="q" value="{{ request('q') }}" placeholder="Rechercher une discussion..."
+                        class="w-full py-3.5 pl-11 pr-4 bg-slate-50/50 border border-slate-200/60 rounded-2xl text-sm font-medium focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 focus:bg-white transition-all placeholder-slate-400 text-slate-900 shadow-sm">
+                </form>
+
+                <!-- Filter Tabs (Active / Archived) -->
+                <div class="flex items-center gap-1 mt-6 p-1 bg-slate-100/80 rounded-xl">
+                    <a href="{{ route('chat.index', ['type' => 'active']) }}" 
+                       class="flex-1 py-1.5 text-center text-xs font-bold rounded-lg transition-all {{ request('type', 'active') == 'active' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700' }}">
+                       Actifs
+                    </a>
+                    <a href="{{ route('chat.index', ['type' => 'archived']) }}" 
+                       class="flex-1 py-1.5 text-center text-xs font-bold rounded-lg transition-all {{ request('type') == 'archived' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700' }}">
+                       Archivés
+                    </a>
                 </div>
             </div>
 
-            <div class="flex-1 overflow-y-auto custom-scrollbar">
+            <div class="flex-1 overflow-y-auto px-4 pb-4 space-y-2 custom-scrollbar">
                 @forelse ($conversations as $conv)
                     @php
                         $friend = ($conv->user_one_id == auth()->id()) ? $conv->userTow : $conv->userOne;
                         $isSelected = isset($conversation) && $conversation->id === $conv->id;
                     @endphp
                     <a href="{{ route('chat.show', $conv->id) }}" data-con-id="{{ $conv->id }}"
-                        class="block group relative px-4 py-4 cursor-pointer transition-all duration-200 border-l-4 hover:bg-gray-50 {{ $isSelected ? 'bg-indigo-50 border-indigo-600' : 'bg-white border-transparent hover:border-gray-200' }}">
+                        class="group relative flex items-center gap-4 p-4 rounded-[1.2rem] transition-all duration-300 border border-transparent
+                               {{ $isSelected 
+                                    ? 'bg-indigo-50/80 border-indigo-100/50 shadow-sm' 
+                                    : 'hover:bg-slate-50 hover:border-slate-100' }}">
                         
-                        <div class="flex items-center space-x-3">
-                            <!-- Avatar Column -->
-                            <div class="relative flex-shrink-0" data-ui="avatar-container">
+                        <!-- Avatar -->
+                        <div class="relative flex-shrink-0" data-ui="avatar-container">
+                            <div class="w-12 h-12 rounded-[1rem] p-0.5 bg-gradient-to-br {{ $isSelected ? 'from-indigo-500 to-purple-500' : 'from-slate-100 to-slate-200 group-hover:from-indigo-200 group-hover:to-purple-200' }} transition-all">
                                 <img src="{{ $friend->image ?? 'https://i.pravatar.cc/150?u='.$friend->id }}" 
                                      alt="{{ $friend->nom }}" 
-                                     class="w-12 h-12 rounded-full object-cover ring-2 ring-offset-1 {{ $isSelected ? 'ring-indigo-500' : 'ring-gray-100 group-hover:ring-gray-200' }} transition-all">
-                                
-                                <!-- Online Status Dot -->
-                                <span class="absolute bottom-0 right-0 w-3 h-3 {{ App\Helpers\UserHelper::isUserOnline($friend->id) ? 'bg-green-500' : 'bg-gray-300' }} border-2 border-white rounded-full" data-user-status="{{ $friend->id }}"></span>
-                                
-                                @if($conv->unread_count > 0)
-                                    <span class="absolute -top-1 -right-1 flex h-4 w-4" data-ui="unread-badge">
-                                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                                        <span class="relative inline-flex rounded-full h-4 w-4 bg-red-500 text-white text-[9px] font-bold items-center justify-center border-2 border-white" data-ui="unread-count">{{ $conv->unread_count }}</span>
+                                     class="w-full h-full rounded-[0.9rem] object-cover bg-white">
+                            </div>
+                            
+                            <!-- Online Status -->
+                            <span class="absolute -bottom-1 -right-1 flex h-4 w-4">
+                                <span class="relative inline-flex rounded-full h-4 w-4 {{ App\Helpers\UserHelper::isUserOnline($friend->id) ? 'bg-emerald-500' : 'bg-slate-300' }} border-2 border-white transition-colors duration-300" data-user-status="{{ $friend->id }}"></span>
+                            </span>
+
+                            @if($conv->unread_count > 0)
+                                <div class="absolute -top-2 -left-2" data-ui="unread-badge">
+                                    <span class="flex h-5 w-5 relative">
+                                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
+                                        <span class="relative inline-flex rounded-full h-5 w-5 bg-gradient-to-r from-rose-500 to-pink-600 text-white text-[10px] font-black items-center justify-center border-2 border-white shadow-sm" data-ui="unread-count">{{ $conv->unread_count }}</span>
                                     </span>
+                                </div>
+                            @endif
+                        </div>
+
+                        <!-- Content -->
+                        <div class="flex-1 min-w-0">
+                            <div class="flex justify-between items-center mb-0.5" data-ui="item-header">
+                                <h3 class="text-sm font-bold {{ $isSelected ? 'text-indigo-900' : 'text-slate-900' }} truncate">
+                                    {{ $friend->nom }} <span class="font-medium opacity-80">{{ $friend->prenom }}</span>
+                                </h3>
+                                @if($conv->lastMessage)
+                                    <span class="text-[10px] font-medium text-slate-400 flex-shrink-0" data-ui="time-display">{{ $conv->lastMessage->created_at->format('H:i') }}</span>
                                 @endif
                             </div>
-
-                            <!-- Content Column -->
-                            <div class="flex-1 min-w-0">
-                                <div class="flex justify-between items-baseline mb-1" data-ui="item-header">
-                                    <h3 class="text-sm font-semibold {{ $isSelected ? 'text-indigo-900' : 'text-gray-900' }} truncate group-hover:text-indigo-600 transition-colors">
-                                        {{ $friend->nom }} {{  $friend->prenom }}
-                                    </h3>
+                            
+                            <div class="flex items-center justify-between">
+                                <p class="text-xs {{ $isSelected ? 'text-indigo-700 font-medium' : 'text-slate-500' }} truncate pr-2 opacity-90" data-ui="message-preview">
                                     @if($conv->lastMessage)
-                                        <span class="text-[10px] text-gray-400 flex-shrink-0 ml-2" data-ui="time-display">{{ $conv->lastMessage->created_at->format('H:i') }}</span>
-                                    @endif
-                                </div>
-                                
-                                <div class="flex items-center justify-between">
-                                    <p class="text-xs {{ $isSelected ? 'text-indigo-700 font-medium' : 'text-gray-500' }} truncate pr-2 opacity-90" data-ui="message-preview">
-                                        @if($conv->lastMessage)
-                                            @if($conv->lastMessage->sender_id == auth()->id())
-                                                <span class="text-indigo-400 mr-1">Vous:</span>
-                                            @endif
-                                            @if($conv->lastMessage->text)
-                                                {{ Str::limit($conv->lastMessage->text, 30) }}
-                                            @elseif(!empty($conv->lastMessage->attach))
-                                                <span class="flex items-center"><svg class="w-3 h-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" /></svg> Fichier</span>
-                                            @endif
-                                        @else
-                                            <span class="italic opacity-70">Nouveau chat</span>
+                                        @if($conv->lastMessage->sender_id == auth()->id())
+                                            <span class="{{ $isSelected ? 'text-indigo-500' : 'text-slate-400' }}">Vous:</span>
                                         @endif
-                                    </p>
-                                    
-                                     <!-- Options Dropdown Trigger (Hidden by default, shown on hover) -->
-                                    <button onclick="event.preventDefault(); event.stopPropagation(); toggleDropdown({{ $conv->id }})" class="p-1 rounded-full text-gray-400 hover:bg-gray-200 hover:text-gray-600 transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                                        @if($conv->lastMessage->text)
+                                            {{ Str::limit($conv->lastMessage->text, 25) }}
+                                        @elseif(!empty($conv->lastMessage->attach))
+                                            <span class="flex items-center gap-1 italic"><svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" /></svg> Fichier</span>
+                                        @endif
+                                    @else
+                                        <span class="italic opacity-60">Nouvelle discussion</span>
+                                    @endif
+                                </p>
+                                
+                                <div class="relative group/menu">
+                                    <button onclick="event.preventDefault(); event.stopPropagation(); toggleDropdown({{ $conv->id }})" class="p-1.5 rounded-full text-slate-300 hover:bg-white hover:text-indigo-500 hover:shadow-sm transition-all opacity-0 group-hover:opacity-100 focus:opacity-100">
+                                        <svg class="w-4 h-4" viewBox="0 0 20 20" fill="currentColor">
                                             <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
                                         </svg>
                                     </button>
@@ -106,185 +132,200 @@
                         </div>
 
                          <!-- Dropdown Menu -->
-                         <div id="dropdown-{{ $conv->id }}" class="hidden absolute right-4 top-10 z-30 w-36 bg-white rounded-lg shadow-xl border border-gray-100 py-1 text-xs origin-top-right transform transition-all duration-200">
+                         <div id="dropdown-{{ $conv->id }}" class="hidden absolute right-4 top-14 z-50 w-40 bg-white rounded-xl shadow-[0_10px_40px_rgba(0,0,0,0.1)] border border-slate-100 py-1 text-xs font-semibold origin-top-right animate-in fade-in zoom-in-95 duration-200">
                             @if(request('type') == 'archived')
                                 <form action="{{ route('chat.unarchive', $conv->id) }}" method="POST">
                                     @csrf
-                                    <button type="submit" class="w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-50 hover:text-indigo-600 transition-colors">
+                                    <button type="submit" class="w-full text-left px-4 py-2.5 text-slate-700 hover:bg-slate-50 hover:text-indigo-600 transition-colors flex items-center gap-2">
+                                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 19a2 2 0 01-2-2V7a2 2 0 012-2h4l2 2h4a2 2 0 012 2v1M5 19h14a2 2 0 002-2v-5a2 2 0 00-2-2H9a2 2 0 00-2 2v5a2 2 0 01-2 2z" /></svg>
                                         Désarchiver
                                     </button>
                                 </form>
                             @else
                                 <form action="{{ route('chat.archive', $conv->id) }}" method="POST">
                                     @csrf
-                                    <button type="submit" class="w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-50 hover:text-indigo-600 transition-colors">
+                                    <button type="submit" class="w-full text-left px-4 py-2.5 text-slate-700 hover:bg-slate-50 hover:text-indigo-600 transition-colors flex items-center gap-2">
+                                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" /></svg>
                                         Archiver
                                     </button>
                                 </form>
                             @endif
+                            <div class="h-px bg-slate-100 my-1"></div>
                             <form action="{{ route('chat.delete', $conv->id) }}" method="POST">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="w-full text-left px-4 py-2 text-red-600 hover:bg-red-50 transition-colors" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette conversation ?')">
+                                @csrf @method('DELETE')
+                                <button type="submit" class="w-full text-left px-4 py-2.5 text-rose-600 hover:bg-rose-50 transition-colors flex items-center gap-2" onclick="return confirm('Supprimer définitivement cette conversation ?')">
+                                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
                                     Supprimer
                                 </button>
                             </form>
                         </div>
                     </a>
                 @empty
-                    <div class="p-6 text-center text-gray-500">
-                        <p class="text-sm">Aucune conversation.</p>
+                    <div class="flex flex-col items-center justify-center py-10 px-4 text-center">
+                        <div class="w-16 h-16 bg-slate-100 rounded-2xl flex items-center justify-center mb-4 text-slate-300">
+                           <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>
+                        </div>
+                        <p class="text-sm font-bold text-slate-800">Aucune discussion</p>
+                        <p class="text-xs text-slate-500 mt-1 mb-4">Votre boîte de réception est vide.</p>
                         <a href="{{ route('friends.index') }}"
-                            class="mt-2 inline-block text-xs font-medium text-indigo-600 hover:text-indigo-500">
-                            Commencer une discussion
+                            class="px-4 py-2 bg-indigo-600 text-white text-xs font-bold rounded-xl shadow-lg shadow-indigo-500/30 hover:bg-indigo-700 transition-all hover:scale-105 active:scale-95">
+                            Nouvelle discussion
                         </a>
                     </div>
                 @endforelse
             </div>
         </div>
 
-        <div class="flex-1 flex flex-col bg-white">
+        <!-- Chat Area -->
+        <div class="flex-1 flex flex-col relative z-0">
             @if($selected_user)
-                <div class="px-6 py-3 border-b border-gray-100 bg-white/80 backdrop-blur-sm sticky top-0 z-10 flex items-center justify-between">
-                    <div class="flex items-center space-x-4">
-                        <div class="relative">
-                            <img src="{{$selected_user->image }}" alt="{{ $selected_user->prenom  }}" class="w-10 h-10 rounded-full object-cover shadow-sm ring-1 ring-gray-100">
+                <!-- Header -->
+                <div class="px-6 py-4 bg-white/60 backdrop-blur-md border-b border-white shadow-sm flex items-center justify-between z-10">
+                    <div class="flex items-center gap-4">
+                        <div class="relative group cursor-pointer">
+                            <div class="absolute -inset-0.5 bg-gradient-to-tr from-indigo-500 to-purple-500 rounded-full opacity-0 group-hover:opacity-100 transition duration-500 blur-sm"></div>
+                            <img src="{{$selected_user->image }}" alt="{{ $selected_user->prenom  }}" class="relative w-11 h-11 rounded-full object-cover border-2 border-white shadow-sm">
                              <!-- Online Status -->
-                            <span class="absolute bottom-0 right-0 block h-2.5 w-2.5 rounded-full {{ App\Helpers\UserHelper::isUserOnline($selected_user->id) ? 'bg-green-500' : 'bg-gray-300' }} ring-2 ring-white" data-user-status="{{ $selected_user->id }}"></span>
+                            <span class="absolute bottom-0 right-0 block h-3 w-3 rounded-full {{ App\Helpers\UserHelper::isUserOnline($selected_user->id) ? 'bg-emerald-500' : 'bg-slate-300' }} ring-2 ring-white transition-colors duration-300" data-user-status="{{ $selected_user->id }}"></span>
                         </div>
                         
                         <div class="flex flex-col">
-                            <h3 class="text-base font-bold text-gray-900 leading-tight">
+                            <h3 class="text-lg font-black text-slate-900 leading-tight">
                                 {{  $selected_user->prenom . ' ' . $selected_user->nom  }}
                             </h3>
                             
-                            @if(App\Helpers\UserHelper::isUserOnline($selected_user->id))
-                                <p class="text-xs text-green-600 font-medium" id="online-status">En ligne</p>
-                            @else
-                                <p class="text-xs text-gray-500" id="online-status">
-                                    {{ App\Helpers\UserHelper::getLastSeen($selected_user) }}
+                            <div class="flex items-center h-4">
+                                <p id="typing-indicator" class="text-xs text-indigo-600 font-bold hidden animate-pulse bg-indigo-50 px-2 py-0.5 rounded-full">
+                                    écrit...
                                 </p>
-                            @endif
-                             <p id="typing-indicator" class="text-xs text-indigo-500 font-medium hidden italic">est en train d'écrire...</p>
+                                <div id="online-status">
+                                    @if(App\Helpers\UserHelper::isUserOnline($selected_user->id))
+                                        <p class="text-xs text-emerald-600 font-bold">En ligne</p>
+                                    @else
+                                        <p class="text-xs text-slate-500 font-medium">
+                                            {{ App\Helpers\UserHelper::getLastSeen($selected_user) }}
+                                        </p>
+                                    @endif
+                                </div>
+                            </div>
                         </div>
                     </div>
                     
-                    <div class="flex items-center space-x-2">
-                        <button class="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-full transition-colors" title="Appel vocal">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                            </svg>
-                        </button>
-                        <button class="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-full transition-colors" title="Appel vidéo">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.82v6.36a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                            </svg>
-                        </button>
-                        <div class="w-px h-6 bg-gray-200 mx-1"></div>
-                        <button class="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors" title="Plus d'options">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
-                            </svg>
+                    <div class="flex items-center gap-2">
+                         <div class="hidden sm:flex items-center gap-1 bg-slate-100 p-1 rounded-xl">
+                            <button class="p-2 text-slate-400 hover:text-indigo-600 hover:bg-white hover:shadow-sm rounded-lg transition-all" title="Appel vocal">
+                                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" /></svg>
+                            </button>
+                            <button class="p-2 text-slate-400 hover:text-indigo-600 hover:bg-white hover:shadow-sm rounded-lg transition-all" title="Appel vidéo">
+                                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.82v6.36a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+                            </button>
+                         </div>
+                        <button class="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-full transition-all">
+                            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" /></svg>
                         </button>
                     </div>
                 </div>
 
-                <div id="messages-container" class="flex-1 overflow-y-auto p-6 space-y-6 bg-slate-50 relative">
-                    <div class="flex justify-center">
-                        <span
-                            class="px-4 py-1 text-xs font-semibold text-gray-500 bg-gray-200 rounded-full shadow-sm">Aujourd'hui</span>
-                    </div>
-
+                <!-- Messages -->
+                <div id="messages-container" class="flex-1 overflow-y-auto p-6 space-y-6 scroll-smooth custom-scrollbar">
+                    
                     @if(isset($messages))
+                        @php
+                            $lastDate = null;
+                        @endphp
                         @foreach($messages as $message)
+                            @php
+                                $msgDate = $message->created_at->format('Y-m-d');
+                                $displayDate = $message->created_at->isToday() ? "Aujourd'hui" : ($message->created_at->isYesterday() ? "Hier" : $message->created_at->format('d/m/Y'));
+                            @endphp
+
+                            @if($lastDate !== $msgDate)
+                                <div class="flex justify-center my-6">
+                                    <span class="px-4 py-1.5 text-[10px] uppercase font-bold tracking-widest text-slate-400 bg-slate-100 rounded-full shadow-sm">
+                                        {{ $displayDate }}
+                                    </span>
+                                </div>
+                                @php $lastDate = $msgDate; @endphp
+                            @endif
+
                             @if($message->sender_id == auth()->id())
-                                <div class="flex items-end justify-end space-x-2">
+                                <!-- MY MESSAGE -->
+                                <div class="flex items-end justify-end gap-3 group">
                                     <div class="flex flex-col space-y-1 max-w-lg items-end">
                                         @if(isset($message->attach) && !empty($message->attach['path']))
                                             <div class="mb-1">
                                                 @if(Str::startsWith($message->attach['mime_type'], 'image/'))
-                                                    <a href="{{ asset('storage/' . $message->attach['path']) }}" target="_blank">
+                                                    <a href="{{ asset('storage/' . $message->attach['path']) }}" target="_blank" class="block overflow-hidden rounded-2xl border-4 border-white shadow-md transition-transform hover:scale-[1.02]">
                                                         <img src="{{ asset('storage/' . $message->attach['path']) }}"
-                                                            class="max-w-[200px] max-h-[200px] rounded-lg shadow-sm border border-indigo-200 object-cover cursor-pointer hover:opacity-90 transition">
+                                                            class="max-w-[240px] max-h-[240px] object-cover">
                                                     </a>
                                                 @else
                                                     <a href="{{ asset('storage/' . $message->attach['path']) }}" target="_blank"
-                                                        class="flex items-center space-x-2 bg-indigo-50 p-2 rounded-lg border border-indigo-100 hover:bg-indigo-100 transition shadow-sm max-w-[200px]">
-                                                        <div class="bg-indigo-100 p-2 rounded-lg text-indigo-500">
-                                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
-                                                                viewBox="0 0 24 24" stroke="currentColor">
-                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                                            </svg>
+                                                        class="flex items-center gap-3 bg-white p-3 rounded-2xl border border-indigo-100 shadow-sm hover:shadow-md transition-all max-w-[240px]">
+                                                        <div class="w-10 h-10 bg-indigo-50 rounded-xl flex items-center justify-center text-indigo-500">
+                                                            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
                                                         </div>
-                                                        <div class="flex-1 min-w-0">
-                                                            <p class="text-xs font-medium text-indigo-900 truncate">
-                                                                {{ $message->attach['filename'] }}</p>
-                                                            <p class="text-[10px] text-indigo-500">
-                                                                {{ number_format($message->attach['size'] / 1024, 1) }} KB</p>
+                                                        <div class="flex-1 min-w-0 text-left">
+                                                            <p class="text-sm font-bold text-slate-800 truncate">{{ $message->attach['filename'] }}</p>
+                                                            <p class="text-[10px] font-medium text-slate-500">{{ number_format($message->attach['size'] / 1024, 1) }} KB</p>
                                                         </div>
                                                     </a>
                                                 @endif
                                             </div>
                                         @endif
                                         @if($message->text)
-                                            <div
-                                                class="bg-gradient-to-br from-indigo-600 to-indigo-700 px-5 py-3 rounded-2xl rounded-br-none shadow-lg shadow-indigo-500/20 text-white text-sm leading-relaxed tracking-wide">
+                                            <div class="relative bg-gradient-to-br from-indigo-600 to-violet-600 px-5 py-3.5 rounded-[1.3rem] rounded-br-none shadow-lg shadow-indigo-500/20 text-white text-[15px] leading-relaxed">
                                                 {{ $message->text }}
                                             </div>
                                         @endif
-                                        <div class="flex items-center space-x-1 pr-1 justify-end">
-                                            <span class="text-xs text-gray-400">{{ $message->created_at->format('H:i') }}</span>
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 text-indigo-400" viewBox="0 0 20 20"
-                                                fill="currentColor">
-                                                <path fill-rule="evenodd"
-                                                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                                                    clip-rule="evenodd" />
-                                            </svg>
+                                        <div class="flex items-center gap-1.5 pr-1 opacity-60 group-hover:opacity-100 transition-opacity">
+                                            <span class="text-[10px] font-bold text-slate-400">{{ $message->created_at->format('H:i') }}</span>
+                                            @if($message->read_at)
+                                                <svg class="w-3.5 h-3.5 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+                                            @else
+                                                 <svg class="w-3.5 h-3.5 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+                                            @endif
                                         </div>
                                     </div>
-                                    <img src="{{ auth()->user()->image ?? 'https://i.pravatar.cc/150?u=' . auth()->id() }}" alt="Me"
-                                        class="w-8 h-8 rounded-full object-cover shadow-sm mb-1">
+                                    <img src="{{ auth()->user()->image ?? 'https://i.pravatar.cc/150?u=' . auth()->id() }}" 
+                                         class="w-8 h-8 rounded-full object-cover shadow-sm ring-2 ring-white self-end mb-6">
                                 </div>
+
                             @else
-                                <div class="flex items-end space-x-2">
+                                <!-- OTHER MESSAGE -->
+                                <div class="flex items-end gap-3 group">
                                     <img src="{{ $selected_user->image ?? 'https://i.pravatar.cc/150?u=' . $selected_user->id }}"
-                                        alt="{{ $selected_user->nom }}" class="w-8 h-8 rounded-full object-cover shadow-sm mb-1">
+                                         class="w-8 h-8 rounded-full object-cover shadow-sm ring-2 ring-white self-end mb-6">
                                     <div class="flex flex-col space-y-1 max-w-lg">
                                         @if(isset($message->attach) && !empty($message->attach['path']))
                                             <div class="mb-1">
                                                 @if(Str::startsWith($message->attach['mime_type'], 'image/'))
-                                                    <a href="{{ asset('storage/' . $message->attach['path']) }}" target="_blank">
+                                                    <a href="{{ asset('storage/' . $message->attach['path']) }}" target="_blank" class="block overflow-hidden rounded-2xl border-4 border-white shadow-md transition-transform hover:scale-[1.02]">
                                                         <img src="{{ asset('storage/' . $message->attach['path']) }}"
-                                                            class="max-w-[200px] max-h-[200px] rounded-lg shadow-sm border border-gray-100 object-cover cursor-pointer hover:opacity-90 transition">
+                                                            class="max-w-[240px] max-h-[240px] object-cover">
                                                     </a>
                                                 @else
                                                     <a href="{{ asset('storage/' . $message->attach['path']) }}" target="_blank"
-                                                        class="flex items-center space-x-2 bg-gray-50 p-2 rounded-lg border border-gray-100 hover:bg-gray-100 transition shadow-sm max-w-[200px]">
-                                                        <div class="bg-gray-200 p-2 rounded-lg text-gray-500">
-                                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
-                                                                viewBox="0 0 24 24" stroke="currentColor">
-                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                                            </svg>
+                                                        class="flex items-center gap-3 bg-white p-3 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-all max-w-[240px]">
+                                                        <div class="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center text-slate-500">
+                                                             <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
                                                         </div>
                                                         <div class="flex-1 min-w-0">
-                                                            <p class="text-xs font-medium text-gray-700 truncate">
-                                                                {{ $message->attach['filename'] }}</p>
-                                                            <p class="text-[10px] text-gray-400">
-                                                                {{ number_format($message->attach['size'] / 1024, 1) }} KB</p>
+                                                            <p class="text-sm font-bold text-slate-800 truncate">{{ $message->attach['filename'] }}</p>
+                                                            <p class="text-[10px] font-medium text-slate-500">{{ number_format($message->attach['size'] / 1024, 1) }} KB</p>
                                                         </div>
                                                     </a>
                                                 @endif
                                             </div>
                                         @endif
                                         @if($message->text)
-                                            <div
-                                                class="bg-white px-5 py-3 rounded-2xl rounded-bl-none shadow-sm text-gray-800 text-sm leading-relaxed border border-gray-100 hover:shadow-md transition-shadow">
+                                            <div class="bg-white px-5 py-3.5 rounded-[1.3rem] rounded-bl-none shadow-sm text-slate-800 text-[15px] leading-relaxed border border-slate-100/50">
                                                 {{ $message->text }}
                                             </div>
                                         @endif
-                                        <span class="text-xs text-gray-400 pl-2">{{ $message->created_at->format('H:i') }}</span>
+                                        <div class="flex items-center gap-1.5 pl-1 opacity-60 group-hover:opacity-100 transition-opacity">
+                                            <span class="text-[10px] font-bold text-slate-400">{{ $message->created_at->format('H:i') }}</span>
+                                        </div>
                                     </div>
                                 </div>
                             @endif
@@ -292,100 +333,84 @@
                     @endif
                 </div>
 
-                <div class="p-4 bg-white border-t border-gray-200">
-                    <form id="chat-form" action="{{ route('chat.send') }}" method="POST" enctype="multipart/form-data"
-                        class="bg-white p-2 rounded-3xl border border-gray-100 shadow-xl flex items-end space-x-2 relative z-20">
-                        @csrf
-                        @if(isset($selected_user))
-                            <input type="hidden" name="receiver_id" value="{{ $selected_user->id }}">
-                        @endif
-                        @if(isset($conversation))
-                            <input type="hidden" name="conversation_id" value="{{ $conversation->id }}">
-                        @endif
+                <!-- Footer Input -->
+                <div class="p-6 bg-transparent absolute bottom-0 w-full z-20 pointer-events-none">
+                    <div class="pointer-events-auto">
+                        <form id="chat-form" action="{{ route('chat.send') }}" method="POST" enctype="multipart/form-data"
+                            class="bg-white/80 backdrop-blur-xl p-2 rounded-[1.5rem] border border-white/50 shadow-[0_-10px_40px_rgba(0,0,0,0.05)] flex items-end gap-2 relative transition-all focus-within:shadow-[0_-10px_50px_rgba(99,102,241,0.15)] focus-within:border-indigo-100">
+                            @csrf
+                            @if(isset($selected_user))
+                                <input type="hidden" name="receiver_id" value="{{ $selected_user->id }}">
+                            @endif
+                            @if(isset($conversation))
+                                <input type="hidden" name="conversation_id" value="{{ $conversation->id }}">
+                            @endif
 
-                        <input type="file" name="attachment" id="attachment" class="hidden" style="display: none;">
-                        <button type="button" onclick="document.getElementById('attachment').click()"
-                            class="p-3 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-full transition-all duration-200">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
-                                stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
-                            </svg>
-                        </button>
+                            <input type="file" name="attachment" id="attachment" class="hidden">
+                            <button type="button" onclick="document.getElementById('attachment').click()"
+                                class="p-3 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-full transition-all duration-200 group relative">
+                                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" /></svg>
+                                @if(isset($message) && isset($message->attach)) 
+                                    <span class="absolute top-2 right-2 w-2 h-2 bg-rose-500 rounded-full"></span>
+                                @endif
+                            </button>
 
-                        <div class="flex-1 relative">
-                            <!-- File Preview Container -->
-                            <div id="file-preview-container" class="hidden absolute bottom-full left-0 mb-4 w-full">
-                                <div
-                                    class="bg-white rounded-2xl p-3 border border-indigo-100 shadow-2xl inline-flex items-center space-x-4 animate-fade-in-up">
-                                    <div id="preview-icon-wrapper" class="relative group">
-                                        <img id="image-preview" src=""
-                                            class="hidden w-16 h-16 object-cover rounded-xl border-2 border-indigo-100 shadow-sm">
-                                        <div id="file-icon"
-                                            class="hidden w-16 h-16 bg-indigo-50 rounded-xl flex items-center justify-center border-2 border-indigo-100 text-indigo-500">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none"
-                                                viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                            </svg>
+                            <div class="flex-1 relative">
+                                <!-- File Preview -->
+                                <div id="file-preview-container" class="hidden absolute bottom-full left-0 mb-6 w-full">
+                                    <div class="bg-white rounded-2xl p-3 border border-indigo-100 shadow-2xl inline-flex items-center gap-4 animate-in slide-in-from-bottom-2 fade-in duration-300">
+                                        <div id="preview-icon-wrapper" class="relative group">
+                                            <img id="image-preview" src="" class="hidden w-16 h-16 object-cover rounded-xl border-2 border-indigo-100 shadow-sm">
+                                            <div id="file-icon" class="hidden w-16 h-16 bg-indigo-50 rounded-xl flex items-center justify-center border-2 border-indigo-100 text-indigo-500">
+                                                <svg class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                                            </div>
+                                            <button type="button" id="remove-file" class="absolute -top-2 -right-2 bg-rose-500 text-white rounded-full p-1 shadow-md hover:bg-rose-600 transition transform hover:scale-110 opacity-0 group-hover:opacity-100">
+                                                <svg class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
+                                            </button>
                                         </div>
-                                        <button type="button" id="remove-file"
-                                            class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 shadow-md hover:bg-red-600 transition transform hover:scale-110 opacity-0 group-hover:opacity-100">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20"
-                                                fill="currentColor">
-                                                <path fill-rule="evenodd"
-                                                    d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                                                    clip-rule="evenodd" />
-                                            </svg>
-                                        </button>
-                                    </div>
-                                    <div class="flex flex-col max-w-xs">
-                                        <span id="file-name" class="text-sm font-bold text-gray-800 truncate block"></span>
-                                        <span id="file-size" class="text-xs text-indigo-500 font-medium"></span>
+                                        <div class="flex flex-col max-w-xs">
+                                            <span id="file-name" class="text-sm font-bold text-slate-800 truncate block"></span>
+                                            <span id="file-size" class="text-xs text-indigo-500 font-bold"></span>
+                                        </div>
                                     </div>
                                 </div>
+
+                                <textarea name="message" id="message-input" placeholder="Écrivez votre message..."
+                                    class="w-full bg-transparent border-none focus:ring-0 resize-none py-3.5 px-2 text-slate-800 placeholder-slate-400 max-h-32 text-sm font-medium"
+                                    rows="1"></textarea>
                             </div>
 
-                            <textarea name="message" id="message-input" placeholder="Écrivez votre message..."
-                                class="w-full bg-transparent border-none focus:ring-0 resize-none py-3 px-2 text-gray-800 placeholder-gray-400 max-h-32 text-sm font-medium"
-                                rows="1"></textarea>
-                        </div>
-
-                        <div class="flex items-center space-x-2 pb-1">
                             <button type="submit"
-                                class="bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-full p-3 shadow-lg shadow-indigo-500/30 hover:shadow-indigo-500/50 hover:scale-105 transition-all duration-200">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 transform rotate-90"
-                                    viewBox="0 0 20 20" fill="currentColor">
-                                    <path
-                                        d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z" />
-                                </svg>
+                                class="bg-gradient-to-r from-indigo-600 to-violet-600 text-white rounded-full p-3.5 shadow-lg shadow-indigo-500/30 hover:shadow-indigo-500/50 hover:scale-105 active:scale-95 transition-all duration-200 mb-0.5">
+                                <svg class="h-5 w-5 transform rotate-90" viewBox="0 0 20 20" fill="currentColor"><path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z" /></svg>
                             </button>
-                        </div>
-                    </form>
+                        </form>
+                    </div>
                 </div>
             @else
-                <div class="flex-1 flex flex-col justify-center items-center bg-slate-50">
-                    <div class="text-center p-8 bg-white rounded-2xl shadow-sm border border-gray-100 max-w-md">
-                        <div
-                            class="w-16 h-16 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24"
-                                stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                            </svg>
+                <!-- Empty State -->
+                <div class="flex-1 flex flex-col justify-center items-center bg-slate-50 relative overflow-hidden">
+                    <div class="absolute inset-0 z-0">
+                         <div class="absolute top-1/3 left-1/2 w-[500px] h-[500px] bg-indigo-100/40 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2"></div>
+                    </div>
+                    
+                    <div class="z-10 text-center p-8 max-w-md animate-in fade-in zoom-in-95 duration-500">
+                        <div class="w-24 h-24 bg-white rounded-3xl shadow-xl shadow-indigo-100 flex items-center justify-center mx-auto mb-6 transform rotate-3 hover:rotate-6 transition-transform duration-500">
+                            <div class="w-20 h-20 bg-indigo-50 rounded-2xl flex items-center justify-center border border-indigo-100 text-indigo-500">
+                                <svg class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>
+                            </div>
                         </div>
-                        <h2 class="text-2xl font-bold text-gray-900 mb-2">Vos messages</h2>
-                        <p class="text-gray-500 mb-6">Sélectionnez une conversation dans la liste à gauche pour commencer à
-                            discuter.</p>
+                        <h2 class="text-3xl font-black text-slate-900 mb-3 tracking-tight">Bonjour, {{ auth()->user()->prenom }} !</h2>
+                        <p class="text-slate-500 mb-8 leading-relaxed font-medium">Sélectionnez une discussion sur la gauche ou commencez une nouvelle conversation.</p>
+                        
                         <a href="{{ route('friends.index') }}"
-                            class="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-xl font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700 active:bg-indigo-900 focus:outline-none focus:border-indigo-900 focus:ring ring-indigo-300 disabled:opacity-25 transition ease-in-out duration-150">
-                            Trouver des amis
+                            class="inline-flex items-center gap-2 px-6 py-3 bg-slate-900 text-white rounded-2xl font-bold text-sm shadow-xl shadow-slate-900/20 hover:bg-indigo-600 hover:shadow-indigo-500/30 hover:scale-105 active:scale-95 transition-all duration-300">
+                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
+                            Nouvelle conversation
                         </a>
                     </div>
                 </div>
             @endif
-
-
         </div>
     </div>
 
@@ -493,38 +518,37 @@
                         if (message.attach.mime_type.startsWith('image/')) {
                             attachmentHtml = `
                             <div class="mb-1">
-                                <a href="${path}" target="_blank">
-                                    <img src="${path}" class="max-w-[200px] max-h-[200px] rounded-lg shadow-sm border border-indigo-200 object-cover cursor-pointer hover:opacity-90 transition">
+                                <a href="${path}" target="_blank" class="block overflow-hidden rounded-2xl border-4 border-white shadow-md transition-transform hover:scale-[1.02]">
+                                    <img src="${path}" class="max-w-[240px] max-h-[240px] object-cover">
                                 </a>
                             </div>`;
                         } else {
                             attachmentHtml = `
                             <div class="mb-1">
-                                <a href="${path}" target="_blank" class="flex items-center space-x-2 bg-indigo-50 p-2 rounded-lg border border-indigo-100 hover:bg-indigo-100 transition shadow-sm max-w-[200px]">
-                                    <div class="bg-indigo-100 p-2 rounded-lg text-indigo-500">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                        </svg>
+                                <a href="${path}" target="_blank" class="flex items-center gap-3 bg-white p-3 rounded-2xl border border-indigo-100 shadow-sm hover:shadow-md transition-all max-w-[240px]">
+                                    <div class="w-10 h-10 bg-indigo-50 rounded-xl flex items-center justify-center text-indigo-500">
+                                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
                                     </div>
-                                    <div class="flex-1 min-w-0">
-                                        <p class="text-xs font-medium text-indigo-900 truncate">${message.attach.filename}</p>
-                                        <p class="text-[10px] text-indigo-500">${(message.attach.size / 1024).toFixed(1)} KB</p>
+                                    <div class="flex-1 min-w-0 text-left">
+                                        <p class="text-sm font-bold text-slate-800 truncate">${message.attach.filename}</p>
+                                        <p class="text-[10px] font-medium text-slate-500">${(message.attach.size / 1024).toFixed(1)} KB</p>
                                     </div>
                                 </a>
                             </div>`;
                         }
                     }
 
-                    html = `
-                <div class="flex items-end justify-end space-x-2 mb-4">
+                html = `
+                <div class="flex items-end justify-end gap-3 group animate-in slide-in-from-right-5 fade-in duration-300 mb-4">
                     <div class="flex flex-col space-y-1 max-w-lg items-end">
                         ${attachmentHtml}
-                        ${message.text ? `<div class="bg-gradient-to-br from-indigo-600 to-indigo-700 px-5 py-3 rounded-2xl rounded-br-none shadow-lg shadow-indigo-500/20 text-white text-sm leading-relaxed tracking-wide">${message.text}</div>` : ''}
-                        <div class="flex items-center space-x-1 pr-1 justify-end">
-                            <span class="text-xs text-gray-400">Maintenant</span>
+                        ${message.text ? `<div class="relative bg-gradient-to-br from-indigo-600 to-violet-600 px-5 py-3.5 rounded-[1.3rem] rounded-br-none shadow-lg shadow-indigo-500/20 text-white text-[15px] leading-relaxed">${message.text}</div>` : ''}
+                        <div class="flex items-center gap-1.5 pr-1 opacity-60">
+                            <span class="text-[10px] font-bold text-slate-400">Maintenant</span>
+                             <svg class="w-3.5 h-3.5 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
                         </div>
                     </div>
-                    <img src="${img}" class="w-8 h-8 rounded-full object-cover">
+                    <img src="${img}" class="w-8 h-8 rounded-full object-cover shadow-sm ring-2 ring-white self-end mb-6">
                 </div>
                 `;
 
@@ -535,35 +559,33 @@
                         if (message.attach.mime_type && message.attach.mime_type.startsWith('image/')) {
                             attachmentHtml = `
                             <div class="mb-1">
-                                <a href="${path}" target="_blank">
-                                    <img src="${path}" class="max-w-[200px] max-h-[200px] rounded-lg shadow-sm border border-gray-100 object-cover cursor-pointer hover:opacity-90 transition">
+                                <a href="${path}" target="_blank" class="block overflow-hidden rounded-2xl border-4 border-white shadow-md transition-transform hover:scale-[1.02]">
+                                    <img src="${path}" class="max-w-[240px] max-h-[240px] object-cover">
                                 </a>
                             </div>`;
                         } else {
                             attachmentHtml = `
                             <div class="mb-1">
-                                <a href="${path}" target="_blank" class="flex items-center space-x-2 bg-gray-50 p-2 rounded-lg border border-gray-100 hover:bg-gray-100 transition shadow-sm max-w-[200px]">
-                                    <div class="bg-gray-200 p-2 rounded-lg text-gray-500">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                        </svg>
+                                <a href="${path}" target="_blank" class="flex items-center gap-3 bg-white p-3 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-all max-w-[240px]">
+                                    <div class="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center text-slate-500">
+                                         <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
                                     </div>
-                                    <div class="flex-1 min-w-0">
-                                        <p class="text-xs font-medium text-gray-700 truncate">${message.attach.filename}</p>
-                                        <p class="text-[10px] text-gray-400">${(message.attach.size / 1024).toFixed(1)} KB</p>
+                                    <div class="flex-1 min-w-0 text-left">
+                                        <p class="text-sm font-bold text-slate-800 truncate">${message.attach.filename}</p>
+                                        <p class="text-[10px] font-medium text-slate-500">${(message.attach.size / 1024).toFixed(1)} KB</p>
                                     </div>
                                 </a>
                             </div>`;
                         }
                     }
 
-                    html = `
-                <div class="flex items-end space-x-2 mb-4">
-                    <img src="${img}" class="w-8 h-8 rounded-full object-cover shadow-sm mb-1">
+                html = `
+                <div class="flex items-end gap-3 group animate-in slide-in-from-left-5 fade-in duration-300 mb-4">
+                    <img src="${img}" class="w-8 h-8 rounded-full object-cover shadow-sm ring-2 ring-white self-end mb-6">
                     <div class="flex flex-col space-y-1 max-w-lg">
                         ${attachmentHtml}
-                        ${message.text ? `<div class="bg-white px-5 py-3 rounded-2xl rounded-bl-none shadow-sm text-gray-800 text-sm leading-relaxed border border-gray-100 hover:shadow-md transition-shadow">${message.text}</div>` : ''}
-                        <span class="text-xs text-gray-400 pl-2">Maintenant</span>
+                        ${message.text ? `<div class="bg-white px-5 py-3.5 rounded-[1.3rem] rounded-bl-none shadow-sm text-slate-800 text-[15px] leading-relaxed border border-slate-100/50">${message.text}</div>` : ''}
+                        <span class="text-[10px] font-bold text-slate-400 pl-2">Maintenant</span>
                     </div>
                 </div>
                 `;
@@ -599,7 +621,7 @@
                     })
                         .then(res => res.json())
                         .then(res => {
-                            console.log(res);
+
                             if (res.success) {
                                 textarea.value = "";
                                 fileInput.value = "";
@@ -638,13 +660,13 @@
                                         // 1. Update Preview Text
                                         let previewText = e.message.text ? 
                                             (e.message.text.length > 25 ? e.message.text.substring(0, 25) + '..' : e.message.text) : 
-                                            '📎 Fichier';
+                                            '<span class="flex items-center gap-1 italic"><svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" /></svg> Fichier</span>';
                                             
                                         let previewParagraph = convItem.querySelector('[data-ui="message-preview"]');
                                         if (previewParagraph) {
                                             previewParagraph.innerHTML = previewText;
-                                        } else {
-                                            console.warn('Could not find message-preview element');
+                                            previewParagraph.classList.add('text-slate-900', 'font-bold'); // Mark as unread visually
+                                            previewParagraph.classList.remove('text-slate-500');
                                         }
 
                                         // 2. Update Time
@@ -653,14 +675,6 @@
                                         
                                         if (timeSpan) {
                                             timeSpan.textContent = time;
-                                        } else {
-                                            // If time didn't exist (e.g. was "Nouveau chat"), insert it
-                                            let headerContainer = convItem.querySelector('[data-ui="item-header"]');
-                                            if (headerContainer) {
-                                                headerContainer.insertAdjacentHTML('beforeend', `<span class="text-[10px] text-gray-400 flex-shrink-0 ml-2" data-ui="time-display">${time}</span>`);
-                                            } else {
-                                                console.warn('Could not find item-header to append time');
-                                            }
                                         }
 
                                         // 3. Update Unread Badge
@@ -677,17 +691,15 @@
                                             } else {
                                                 // Create new badge
                                                 avatarContainer.insertAdjacentHTML('beforeend', `
-                                                    <span class="absolute -top-1 -right-1 flex h-4 w-4" data-ui="unread-badge">
-                                                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                                                        <span class="relative inline-flex rounded-full h-4 w-4 bg-red-500 text-white text-[9px] font-bold items-center justify-center border-2 border-white" data-ui="unread-count">1</span>
-                                                    </span>
+                                                    <div class="absolute -top-2 -left-2" data-ui="unread-badge">
+                                                        <span class="flex h-5 w-5 relative">
+                                                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
+                                                            <span class="relative inline-flex rounded-full h-5 w-5 bg-gradient-to-r from-rose-500 to-pink-600 text-white text-[10px] font-black items-center justify-center border-2 border-white shadow-sm" data-ui="unread-count">1</span>
+                                                        </span>
+                                                    </div>
                                                 `);
                                             }
-                                        } else {
-                                            console.warn('Could not find avatar-container');
                                         }
-                                    } else {
-                                        console.warn('Could not find sidebar item for conversation:', {{ $conv->id }});
                                     }
                                 }
                             }
@@ -718,11 +730,11 @@
             const statusDots = document.querySelectorAll(`[data-user-status="${userId}"]`);
             statusDots.forEach(dot => {
                 if (isOnline) {
-                    dot.classList.remove('bg-gray-300');
-                    dot.classList.add('bg-green-500');
+                    dot.classList.remove('bg-slate-300');
+                    dot.classList.add('bg-emerald-500');
                 } else {
-                    dot.classList.remove('bg-green-500');
-                    dot.classList.add('bg-gray-300');
+                    dot.classList.remove('bg-emerald-500');
+                    dot.classList.add('bg-slate-300');
                 }
             });
         }
