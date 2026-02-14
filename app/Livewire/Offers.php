@@ -132,14 +132,7 @@ class Offers extends Component
         ]);
     }
 
-    public function mcpForOffer(int $offerId): array{
-        $meId = auth()->id();
 
-        $rechercheur = Rechercheur::with('user')->where('user_id', $meId)->firstOrFail();
-        $offer = JobOffer::findOrFail($offerId);
-
-        return app(McpApiService::class)->score($offer, $rechercheur);
-    }
     
 
     public function getMcp(int $offerId): array{
