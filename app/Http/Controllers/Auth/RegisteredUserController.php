@@ -49,7 +49,7 @@ class RegisteredUserController extends Controller
             'image' => $request->image,
         ]);
 
-        if ($user->role === \App\UserRole::RECRUTEUR) {
+        if ($user->role === \App\UserRole::RECRUTEUR || $user->role === 'RECRUTEUR') {
             $user->assignRole('recruteur');
             Recruteur::create([
                 'user_id' => $user->id,

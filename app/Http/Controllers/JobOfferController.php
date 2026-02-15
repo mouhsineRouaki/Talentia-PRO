@@ -5,9 +5,9 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\JobOffer;
+use App\Models\User;
 use App\Models\Recruteur;
 use App\Models\Notification;
-use App\Models\User;
 use App\UserRole;
 use App\Events\NotificationCreated;
 
@@ -97,7 +97,6 @@ class JobOfferController extends Controller
 
         return view('offers.recruteur.show', compact('offer'));
     }
-
     public function acceptedApplicants(JobOffer $offer)
     {
         $offer->load([
@@ -107,7 +106,6 @@ class JobOfferController extends Controller
                 ->with('rechercheur');
             }
         ]);
-
         return view('offers.recruteur.accepted', compact('offer'));
     }
 }

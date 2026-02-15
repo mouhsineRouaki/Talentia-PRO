@@ -129,7 +129,6 @@ class RelationShipController extends Controller
         }
 
         RelationShip::where('sender_id', $sender_id)->where('status', 'PENDING')->where('reciever_id', $reciever_id)->update(['status' => 'ACCEPTED']);
-
         $notification = Notification::create([
             'user_id' => $sender_id,
             'contenu' => auth()->user()->prenom . ' ' . auth()->user()->nom . " a accepté votre demande d'amitié.",

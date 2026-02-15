@@ -6,7 +6,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\JobOfferController;
 use App\Http\Controllers\ApplicationsController;
 use App\Http\Controllers\RechercheurProfileController;
-use App\Http\Controllers\PaymentController;
+
 use App\Http\Controllers\NotificationsController;
 use Illuminate\Support\Facades\Route;
 
@@ -55,6 +55,14 @@ Route::middleware('auth')->group(function () {
     Route::get('/payment/success', [PaymentController::class, 'success'])->name('payment.success');
     Route::get('/checkout/{plan}', [PaymentController::class, 'checkout'])->name('checkout');
     Route::get('/check/{name}', [PaymentController::class, 'check'])->name('check');
+    Route::get('/recruteur/dashboard', function () {
+        return view('recruteur/dashboard');
+    })->middleware(['auth', 'verified'])->name('dashboard.recruteur');
+    Route::get('/rechercheur/dashboard', function () {
+        return view('rechercheur/dashboard');
+    })->middleware(['auth', 'verified'])->name('dashboard.rechercheur');
+    Route::get('/search', [UserController::class, 'searchPage'])->name('users.search');
+    Route::get('/users/{id}', [UserController::class, 'detailsPage'])->name('users.show');
     Route::view('/relationships', 'relationships.index')->name('relationships.index');
     Route::get('/notifications', [NotificationsController::class, 'index'])->name('notifications.index');
 

@@ -17,8 +17,6 @@
                         <a href="{{ route('chat.index', ['type' => 'archived']) }}" class="px-4 py-2 text-xs font-bold rounded-xl transition-all {{ request('type') == 'archived' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-200' : 'text-slate-500 hover:bg-slate-100' }}">Archives</a>
                     </div>
                 </div>
-                    </div>
-                </div>
                 
                 <form action="{{ route('chat.index') }}" method="GET" class="relative group">
                     <span class="absolute inset-y-0 left-0 flex items-center pl-4 transition-colors group-focus-within:text-indigo-500 text-slate-400">
@@ -103,30 +101,7 @@
                                     @endif
                                 </p>
                                 
-                                <div class="relative group/menu">
-                                    <button onclick="event.preventDefault(); event.stopPropagation(); toggleDropdown({{ $conv->id }})" class="p-1.5 rounded-full text-slate-300 hover:bg-white hover:text-indigo-500 hover:shadow-sm transition-all opacity-0 group-hover:opacity-100 focus:opacity-100">
-                                        <svg class="w-4 h-4" viewBox="0 0 20 20" fill="currentColor">
-                                            <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
-                                        </svg>
-                                    </button>
                                 </div>
-                                            @endif
-                                            @if($conv->lastMessage->text)
-                                                {{ Str::limit($conv->lastMessage->text, 30) }}
-                                            @elseif(!empty($conv->lastMessage->attach))
-                                                <span class="flex items-center"><svg class="w-3 h-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" /></svg> Fichier</span>
-                                            @endif
-                                        @else
-                                            <span class="italic opacity-70">Nouveau chat</span>
-                                        @endif
-                                    </p>
-                                    
-                                     <!-- Options Dropdown Trigger (Hidden by default, shown on hover) -->
-                                    <button onclick="event.preventDefault(); event.stopPropagation(); toggleDropdown({{ $conv->id }})" class="p-1 rounded-full text-gray-400 hover:bg-gray-200 hover:text-gray-600 transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                                            <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
-                                        </svg>
-                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -426,6 +401,7 @@
             if (messagesBox) {
                 messagesBox.scrollTop = messagesBox.scrollHeight;
             }
+<<<<<<< HEAD
 
             function isVue(conversationId) {
                 fetch(`/conversations/${conversationId}/isVue`, {
@@ -629,6 +605,147 @@
                                 addMessage(res.message);
                             }
 
+=======
+
+            function isVue(conversationId) {
+                fetch(`/conversations/${conversationId}/isVue`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    }
+                });
+            }
+
+        if (conversationId) {
+            isVue(conversationId);
+        }
+
+            function addMessage(message) {
+
+            if (!messagesBox) return;
+
+            let isMe = message.sender_id == userId;
+
+                let myImage = "{{ auth()->user()->image ?? 'https://ui-avatars.com/api/?name=' . urlencode(auth()->user()->nom) . '&color=7F9CF5&background=EBF4FF' }}";
+                let otherImage = "{{ isset($selected_user) ? ($selected_user->image ?? 'https://ui-avatars.com/api/?name=' . urlencode($selected_user->nom) . '&color=7F9CF5&background=EBF4FF') : '' }}";
+
+                let img = isMe ? myImage : otherImage;
+
+            let html = "";
+
+                if (isMe) {
+                    let attachmentHtml = '';
+                    if (message.attach && message.attach.path) {
+                        let path = "/storage/" + message.attach.path;
+                        if (message.attach.mime_type.startsWith('image/')) {
+                            attachmentHtml = `
+                            <div class="mb-1">
+                                <a href="${path}" target="_blank" class="block overflow-hidden rounded-2xl border-4 border-white shadow-md transition-transform hover:scale-[1.02]">
+                                    <img src="${path}" class="max-w-[240px] max-h-[240px] object-cover">
+                                </a>
+                            </div>`;
+                        } else {
+                            attachmentHtml = `
+                            <div class="mb-1">
+                                <a href="${path}" target="_blank" class="flex items-center gap-3 bg-white p-3 rounded-2xl border border-indigo-100 shadow-sm hover:shadow-md transition-all max-w-[240px]">
+                                    <div class="w-10 h-10 bg-indigo-50 rounded-xl flex items-center justify-center text-indigo-500">
+                                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                                    </div>
+                                    <div class="flex-1 min-w-0 text-left">
+                                        <p class="text-sm font-bold text-slate-800 truncate">${message.attach.filename}</p>
+                                        <p class="text-[10px] font-medium text-slate-500">${(message.attach.size / 1024).toFixed(1)} KB</p>
+                                    </div>
+                                </a>
+                            </div>`;
+                        }
+                    }
+
+                html = `
+                <div class="flex items-end justify-end gap-3 group animate-in slide-in-from-right-5 fade-in duration-300">
+                    <div class="flex flex-col space-y-1 max-w-lg items-end">
+                        ${attachmentHtml}
+                        ${message.text ? `<div class="relative bg-gradient-to-br from-indigo-600 to-violet-600 px-5 py-3.5 rounded-[1.3rem] rounded-br-none shadow-lg shadow-indigo-500/20 text-white text-[15px] leading-relaxed">${message.text}</div>` : ''}
+                        <div class="flex items-center gap-1.5 pr-1 opacity-60">
+                            <span class="text-[10px] font-bold text-slate-400">Maintenant</span>
+                             <svg class="w-3.5 h-3.5 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+                        </div>
+                    </div>
+                    <img src="${img}" class="w-8 h-8 rounded-full object-cover shadow-sm ring-2 ring-white self-end mb-6">
+                </div>
+                `;
+
+                } else {
+                    let attachmentHtml = '';
+                    if (message.attach && message.attach.path) {
+                        let path = "/storage/" + message.attach.path;
+                        if (message.attach.mime_type && message.attach.mime_type.startsWith('image/')) {
+                            attachmentHtml = `
+                            <div class="mb-1">
+                                <a href="${path}" target="_blank" class="block overflow-hidden rounded-2xl border-4 border-white shadow-md transition-transform hover:scale-[1.02]">
+                                    <img src="${path}" class="max-w-[240px] max-h-[240px] object-cover">
+                                </a>
+                            </div>`;
+                        } else {
+                            attachmentHtml = `
+                            <div class="mb-1">
+                                <a href="${path}" target="_blank" class="flex items-center gap-3 bg-white p-3 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-all max-w-[240px]">
+                                    <div class="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center text-slate-500">
+                                         <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                                    </div>
+                                    <div class="flex-1 min-w-0 text-left">
+                                        <p class="text-sm font-bold text-slate-800 truncate">${message.attach.filename}</p>
+                                        <p class="text-[10px] font-medium text-slate-500">${(message.attach.size / 1024).toFixed(1)} KB</p>
+                                    </div>
+                                </a>
+                            </div>`;
+                        }
+                    }
+
+                html = `
+                <div class="flex items-end gap-3 group animate-in slide-in-from-left-5 fade-in duration-300">
+                    <img src="${img}" class="w-8 h-8 rounded-full object-cover shadow-sm ring-2 ring-white self-end mb-6">
+                    <div class="flex flex-col space-y-1 max-w-lg">
+                        ${attachmentHtml}
+                        ${message.text ? `<div class="bg-white px-5 py-3.5 rounded-[1.3rem] rounded-bl-none shadow-sm text-slate-800 text-[15px] leading-relaxed border border-slate-100/50">${message.text}</div>` : ''}
+                        <span class="text-[10px] font-bold text-slate-400 pl-2">Maintenant</span>
+                    </div>
+                </div>
+                `;
+                }
+
+            messagesBox.insertAdjacentHTML('beforeend', html);
+
+                messagesBox.scrollTop = messagesBox.scrollHeight;
+            }
+            if (form) {
+
+                form.addEventListener('submit', function (e) {
+
+                    e.preventDefault();
+
+                    let textarea = form.querySelector('textarea');
+                    let text = textarea.value;
+                    let fileInput = document.getElementById('attachment');
+                    let hasFile = fileInput.files.length > 0;
+
+                    if (text.trim() == "" && !hasFile) return;
+
+                    let data = new FormData(form);
+
+                    fetch(form.action, {
+                        method: "POST",
+                        body: data,
+                        headers: {
+                            "X-CSRF-TOKEN": document
+                                .querySelector('meta[name="csrf-token"]').content,
+                            "Accept": "application/json"
+                        }
+                    })
+                        .then(res => res.json())
+                        .then(res => {
+
+                            }
                         })
                         .catch(err => console.log(err));
 
@@ -854,5 +971,3 @@
              allDropdowns.forEach(d => d.classList.add('hidden'));
         }
     }
-    </script>
-</x-app-layout>
