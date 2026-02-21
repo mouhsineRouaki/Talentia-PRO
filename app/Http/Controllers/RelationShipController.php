@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\FriendShipStatu;
 use App\Events\NotificationCreated;
+use Illuminate\Support\Facades\Cache;
 
 class RelationShipController extends Controller
 {
@@ -47,6 +48,10 @@ class RelationShipController extends Controller
             'contenu' => auth()->user()->prenom . ' ' . auth()->user()->nom . " vous a envoyé une demande d'amitié.",
             'date_envoyer' => now(),
         ]);
+        // invalider le cache des notifications plus amis
+        Cache::forget("notifications-{$reciever_id}");
+        Cache::forget("friends-" . auth()->id());
+        Cache::forget("friends-{$reciever_id}");
 
         event(new NotificationCreated($notification));
 
@@ -57,43 +62,91 @@ class RelationShipController extends Controller
         $me = $request->user();
         $q = trim((string) $request->query('q', ''));
 
-        $received = RelationShip::query()
-            ->where('status', 'PENDING')
-            ->where('reciever_id', $me->id)
-            ->with('sender:id,nom,prenom,email,role,biographie,image')
-            ->latest()
-            ->get()
-            ->map(fn($rel) => $rel->sender)
-            ->filter();
+        // cache pour 1 heure si pas de recherche
+        if ($q === '') {
+            $cacheKey = "friends-{$me->id}";
+            
+            $data = Cache::remember($cacheKey, 3600, function() use ($me) {
+                $received = RelationShip::query()
+                    ->where('status', 'PENDING')
+                    ->where('reciever_id', $me->id)
+                    ->with('sender:id,nom,prenom,email,role,biographie,image')
+                    ->latest()
+                    ->get()
+                    ->map(fn($rel) => $rel->sender)
+                    ->filter();
 
-        $sent = RelationShip::query()
-            ->where('status', 'PENDING')
-            ->where('sender_id', $me->id)
-            ->with('reciever:id,nom,prenom,email,role,biographie,image')
-            ->latest()
-            ->get()
-            ->map(fn($rel) => $rel->reciever)
-            ->filter();
+                $sent = RelationShip::query()
+                    ->where('status', 'PENDING')
+                    ->where('sender_id', $me->id)
+                    ->with('reciever:id,nom,prenom,email,role,biographie,image')
+                    ->latest()
+                    ->get()
+                    ->map(fn($rel) => $rel->reciever)
+                    ->filter();
 
-        $friendIds = RelationShip::query()
-            ->where('status', 'ACCEPTED')
-            ->where(function ($x) use ($me) {
-                $x->where('sender_id', $me->id)
-                    ->orWhere('reciever_id', $me->id);
-            })
-            ->get()
-            ->map(fn($rel) => $rel->sender_id == $me->id ? $rel->reciever_id : $rel->sender_id)
-            ->unique()
-            ->values()
-            ->all();
+                $friendIds = RelationShip::query()
+                    ->where('status', 'ACCEPTED')
+                    ->where(function ($x) use ($me) {
+                        $x->where('sender_id', $me->id)
+                            ->orWhere('reciever_id', $me->id);
+                    })
+                    ->get()
+                    ->map(fn($rel) => $rel->sender_id == $me->id ? $rel->reciever_id : $rel->sender_id)
+                    ->unique()
+                    ->values()
+                    ->all();
 
-        $friends = User::query()
-            ->select('id', 'nom', 'prenom', 'email', 'role', 'biographie', 'image')
-            ->whereIn('id', $friendIds)
-            ->orderBy('nom')
-            ->get();
+                $friends = User::query()
+                    ->select('id', 'nom', 'prenom', 'email', 'role', 'biographie', 'image')
+                    ->whereIn('id', $friendIds)
+                    ->orderBy('nom')
+                    ->get();
+                    
+                return compact('received', 'sent', 'friends');
+            });
+            
+            $received = $data['received'];
+            $sent = $data['sent'];
+            $friends = $data['friends'];
+        } else {
+            // si il y a de recherche = pas de cache
+            $received = RelationShip::query()
+                ->where('status', 'PENDING')
+                ->where('reciever_id', $me->id)
+                ->with('sender:id,nom,prenom,email,role,biographie,image')
+                ->latest()
+                ->get()
+                ->map(fn($rel) => $rel->sender)
+                ->filter();
 
-        if ($q !== '') {
+            $sent = RelationShip::query()
+                ->where('status', 'PENDING')
+                ->where('sender_id', $me->id)
+                ->with('reciever:id,nom,prenom,email,role,biographie,image')
+                ->latest()
+                ->get()
+                ->map(fn($rel) => $rel->reciever)
+                ->filter();
+
+            $friendIds = RelationShip::query()
+                ->where('status', 'ACCEPTED')
+                ->where(function ($x) use ($me) {
+                    $x->where('sender_id', $me->id)
+                        ->orWhere('reciever_id', $me->id);
+                })
+                ->get()
+                ->map(fn($rel) => $rel->sender_id == $me->id ? $rel->reciever_id : $rel->sender_id)
+                ->unique()
+                ->values()
+                ->all();
+
+            $friends = User::query()
+                ->select('id', 'nom', 'prenom', 'email', 'role', 'biographie', 'image')
+                ->whereIn('id', $friendIds)
+                ->orderBy('nom')
+                ->get();
+
             $filterFn = fn($u) =>
                 str_contains(mb_strtolower($u->nom ?? ''), mb_strtolower($q)) ||
                 str_contains(mb_strtolower($u->prenom ?? ''), mb_strtolower($q));
@@ -134,6 +187,10 @@ class RelationShipController extends Controller
             'contenu' => auth()->user()->prenom . ' ' . auth()->user()->nom . " a accepté votre demande d'amitié.",
             'date_envoyer' => now(),
         ]);
+        // invalider le cache pour les deux utilisateurs
+        Cache::forget("friends-{$sender_id}");
+        Cache::forget("friends-{$reciever_id}");
+        Cache::forget("notifications-{$sender_id}");
 
         event(new NotificationCreated($notification));
 
@@ -145,6 +202,9 @@ class RelationShipController extends Controller
         $reciever_id = $request->input('reciever_id');
 
         RelationShip::where('sender_id', $sender_id)->where('status', 'PENDING')->where('reciever_id', $reciever_id)->update(['status' => 'REFUSED']);
+        // invalider le cache
+        Cache::forget("friends-{$sender_id}");
+        Cache::forget("friends-{$reciever_id}");
         return redirect()->route('friends.index')->with('warning','Demande d\'ami refusée.');
     }
 }

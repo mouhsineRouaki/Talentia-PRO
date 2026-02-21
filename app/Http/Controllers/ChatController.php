@@ -10,6 +10,7 @@ use App\Models\Notification;
 use App\Events\MessageSent;
 use App\Events\NotificationCreated;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Cache;
 
 class ChatController extends Controller
 {
@@ -17,40 +18,45 @@ class ChatController extends Controller
         $userId = auth()->id();
         $type = $request->get('type', 'active'); // 'active' or 'archived'
 
-        $conversations = Conversation::where(function($query) use ($userId, $type) {
-                $query->where('user_one_id', $userId)
-                      ->whereNull('user_one_deleted_at');
-                
-                if ($type === 'archived') {
-                    $query->whereNotNull('user_one_archived_at');
-                } else {
-                    $query->whereNull('user_one_archived_at');
-                }
-            })
-            ->orWhere(function($query) use ($userId, $type) {
-                $query->where('user_two_id', $userId)
-                      ->whereNull('user_two_deleted_at');
+        // cache de 10 min
+        $cacheKey = "conversations-{$userId}-{$type}";
+        
+        $conversations = Cache::remember($cacheKey, 600, function() use ($userId, $type) {
+            return Conversation::where(function($query) use ($userId, $type) {
+                    $query->where('user_one_id', $userId)
+                          ->whereNull('user_one_deleted_at');
+                    
+                    if ($type === 'archived') {
+                        $query->whereNotNull('user_one_archived_at');
+                    } else {
+                        $query->whereNull('user_one_archived_at');
+                    }
+                })
+                ->orWhere(function($query) use ($userId, $type) {
+                    $query->where('user_two_id', $userId)
+                          ->whereNull('user_two_deleted_at');
 
-                if ($type === 'archived') {
-                    $query->whereNotNull('user_two_archived_at');
-                } else {
-                    $query->whereNull('user_two_archived_at');
-                }
-            })
-            ->with(['userOne', 'userTow', 'lastMessage'])
-            ->withCount([
-                'message as unread_count' => function ($query) use ($userId) {
-                    $query->where('sender_id', '!=', $userId)
-                        ->whereNull('read_at');
-                }
-            ])
-            ->orderByDesc(
-                Message::select('created_at')
-                    ->whereColumn('conversation_id', 'conversation.id')
-                    ->latest()
-                    ->limit(1)
-            )
-            ->get();
+                    if ($type === 'archived') {
+                        $query->whereNotNull('user_two_archived_at');
+                    } else {
+                        $query->whereNull('user_two_archived_at');
+                    }
+                })
+                ->with(['userOne', 'userTow', 'lastMessage'])
+                ->withCount([
+                    'message as unread_count' => function ($query) use ($userId) {
+                        $query->where('sender_id', '!=', $userId)
+                            ->whereNull('read_at');
+                    }
+                ])
+                ->orderByDesc(
+                    Message::select('created_at')
+                        ->whereColumn('conversation_id', 'conversation.id')
+                        ->latest()
+                        ->limit(1)
+                )
+                ->get();
+        });
 
         $selected_user = null;
         return view('chat.index', compact('conversations', 'selected_user', 'type'));
@@ -167,6 +173,14 @@ class ChatController extends Controller
             'contenu' => "Vous avez reçu un nouveau message de " . auth()->user()->prenom . ' ' . auth()->user()->nom,
             'date_envoyer' => now(),
         ]);
+
+        //invalider le cache de conversation de 2 users
+        Cache::forget("conversations-{$senderId}-active");
+        Cache::forget("conversations-{$receiverId}-active");
+        Cache::forget("conversations-{$senderId}-archived");
+        Cache::forget("conversations-{$receiverId}-archived");
+        // invalider le cache de notifications
+        Cache::forget("notifications-{$receiverId}");
 
         event(new NotificationCreated($notification));
         event(new MessageSent($message));

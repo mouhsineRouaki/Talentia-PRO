@@ -21,10 +21,13 @@
                 </div>
 
                 @if($notifications->count() > 0)
-                <button class="inline-flex items-center gap-2 px-4 py-2.5 bg-white text-slate-600 text-sm font-bold rounded-xl border border-slate-200 hover:bg-slate-50 hover:text-indigo-600 transition-all shadow-sm">
-                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
-                    Tout marquer comme lu
-                </button>
+                <form action="{{ route('notifications.mark-all-read') }}" method="POST">
+                    @csrf
+                    <button type="submit" class="inline-flex items-center gap-2 px-4 py-2.5 bg-white text-slate-600 text-sm font-bold rounded-xl border border-slate-200 hover:bg-slate-50 hover:text-indigo-600 transition-all shadow-sm">
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+                        Tout marquer comme lu
+                    </button>
+                </form>
                 @endif
             </div>
 
@@ -121,10 +124,14 @@
                                 @endif
                             </div>
                             
-                            <!-- Delete/Close Button (Optional, purely visual for now or could be delete action) -->
-                            <button class="text-slate-300 hover:text-rose-500 transition-colors p-1" title="Supprimer">
-                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
-                            </button>
+                            <!-- delete -->
+                            <form action="{{ route('notifications.delete', $n->id) }}" method="POST" onsubmit="return confirm('supprimer cette notification ?')">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="text-slate-300 hover:text-rose-500 transition-colors p-1" title="Supprimer">
+                                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                                </button>
+                            </form>
                         </div>
                     </div>
                 @empty

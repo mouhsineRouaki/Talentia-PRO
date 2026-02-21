@@ -66,6 +66,11 @@ Route::middleware('auth')->group(function () {
     Route::view('/relationships', 'relationships.index')->name('relationships.index');
     Route::get('/notifications', [NotificationsController::class, 'index'])->name('notifications.index');
 
+    Route::post('/notifications/{id}/mark-read',[NotificationsController::class,'markAsRead'])->name('notifications.mark-read');
+    Route::post('/notifications/mark-all-read',[NotificationsController::class,'markAllAsRead'])->name('notifications.mark-all-read');
+    Route::delete('/notifications/{id}',[NotificationsController::class,'delete'])->name('notifications.delete');
+    Route::delete('/notifications',[NotificationsController::class,'deleteAll'])->name('notifications.delete-all');
+
     Route::get('/conversations', [ChatController::class, 'index'])->name('chat.index');
     Route::get('/conversations/{id}', [ChatController::class, 'show'])->name('chat.show');
     Route::post('/conversations/start', [ChatController::class, 'startConvertation'])->name('conversations.start');

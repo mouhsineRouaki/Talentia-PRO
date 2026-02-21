@@ -14,6 +14,11 @@ class Notification extends Model
         'relationships_id',
         'contenu',
         'date_envoyer',
+        'is_read',
+    ];
+
+    protected $casts = [
+        'is_read' => 'boolean',
     ];
 
     public function user()
